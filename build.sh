@@ -5,7 +5,20 @@ set -x
 
 BASEDIR="$(pwd)"
 
-BUILD_LINUX=1
+# Detect native architecture
+detect_arch() {
+    local arch=$(uname -m)
+    case "$arch" in
+        x86_64|amd64) echo "x86_64" ;;
+        aarch64|arm64) echo "aarch64" ;;
+        *) echo "x86_64" ;;  # fallback
+    esac
+}
+
+NATIVE_ARCH=$(detect_arch)
+
+BUILD_LINUX_X86_64=0
+BUILD_LINUX_AARCH64=0
 BUILD_WIN64=0
 BUILD_MACOS=0
 DIST=0
@@ -19,10 +32,21 @@ MAVEN_ARGS="--batch-mode"
 while true; do
   case "$1" in
     --with-w64 ) BUILD_WIN64=1; shift;;
-    --with-linux ) BUILD_LINUX=1; shift;;
+    --with-linux-x86_64 ) BUILD_LINUX_X86_64=1; shift;;
+    --with-linux-aarch64 | --with-linux-arm64 ) BUILD_LINUX_AARCH64=1; shift;;
+    --with-linux )
+        # Auto-detect based on native arch
+        if [ "$NATIVE_ARCH" = "aarch64" ]; then
+            BUILD_LINUX_AARCH64=1
+        else
+            BUILD_LINUX_X86_64=1
+        fi
+        shift;;
     --with-macos ) BUILD_MACOS=1; shift;;
     --without-w64 ) BUILD_WIN64=0; shift;;
-    --without-linux ) BUILD_LINUX=0; shift;;
+    --without-linux-x86_64 ) BUILD_LINUX_X86_64=0; shift;;
+    --without-linux-aarch64 | --without-linux-arm64 ) BUILD_LINUX_AARCH64=0; shift;;
+    --without-linux ) BUILD_LINUX_X86_64=0; BUILD_LINUX_AARCH64=0; shift;;
     --without-macos ) BUILD_MACOS=0; shift;;
     --skip-test ) RUN_TEST=0; shift;;
     --run-benchmark ) RUN_BENCHMARK=1; shift;;
@@ -83,16 +107,26 @@ generate_enums() {
 ###### Build Linux #######
 ##########################
 
-if [ ${BUILD_LINUX} -gt 0 ]; then
+# Function to build Linux for a specific architecture
+build_linux() {
+    local ARCH="$1"
+    local HOST_FLAG="$2"
+    local TOOLCHAIN_FILE="$3"
+    local TARGET_DIR="linux-${ARCH}"
+
     export CC=gcc
     export CXX=g++
     export CPP=cpp
     export RANLIB=ranlib
-    export HOST="--host=x86_64-pc-linux"
-    export TARGET=linux
+    export HOST="${HOST_FLAG}"
+    export TARGET="${TARGET_DIR}"
     export PREFIX="${BUILDDIR}/${TARGET}"/inst/
-    export TOOLCHAIN="${BASEDIR}"/Toolchain-linux.cmake
-    export PKG_CONFIG_PATH=/usr/lib64/pkgconfig
+    export TOOLCHAIN="${BASEDIR}/${TOOLCHAIN_FILE}"
+    if [ "$ARCH" = "x86_64" ]; then
+        export PKG_CONFIG_PATH=/usr/lib64/pkgconfig
+    else
+        export PKG_CONFIG_PATH=/usr/lib/pkgconfig
+    fi
 
     mkdir -p "${BUILDDIR}/${TARGET}"/JVips
     rm -rf "${BUILDDIR}/${TARGET}"/JVips/*
@@ -103,12 +137,12 @@ if [ ${BUILD_LINUX} -gt 0 ]; then
 
     # Build just libvips first to generate the GIR file
     make -j ${JOBS} libvips || {
-        echo "Linux libvips build failed"
+        echo "Linux ${ARCH} libvips build failed"
         exit 1
     }
     popd
 
-    # Generate enums from the built GIR file
+    # Generate enums from the built GIR file (only on first build)
     GIR_FILE="${PREFIX}/share/gir-1.0/Vips-8.0.gir"
     if [ -f "${GIR_FILE}" ]; then
         generate_enums "${GIR_FILE}"
@@ -120,26 +154,35 @@ if [ ${BUILD_LINUX} -gt 0 ]; then
     # Phase 2: Build JVips JNI wrapper
     pushd "${BUILDDIR}/${TARGET}"/JVips
     make -j ${JOBS} || {
-        echo "Linux JVips build failed"
+        echo "Linux ${ARCH} JVips build failed"
         exit 1
     }
     popd
 
-    LIBS="JVips/src/main/c/libJVips.so"
+    # Copy to architecture-specific output directory
+    mkdir -p "${BUILDDIR}/${TARGET_DIR}/"
 
+    LIBS="JVips/src/main/c/libJVips.so"
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/libJVipsTest.so"
     fi
 
     for LIB in $LIBS; do
-        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/
+        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}/${TARGET_DIR}/"
     done
-    cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}"/all/
+    cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}/${TARGET_DIR}/"
     # Also copy from lib64 (meson installs some libs there on x86_64)
     if [ -d "${BUILDDIR}/${TARGET}/inst/lib64" ]; then
-        cp "${BUILDDIR}/${TARGET}/inst/lib64/"*.so* "${BUILDDIR}"/all/ 2>/dev/null || true
+        cp "${BUILDDIR}/${TARGET}/inst/lib64/"*.so* "${BUILDDIR}/${TARGET_DIR}/" 2>/dev/null || true
     fi
+}
 
+if [ ${BUILD_LINUX_X86_64} -gt 0 ]; then
+    build_linux "x86_64" "--host=x86_64-pc-linux" "Toolchain-linux-x86_64.cmake"
+fi
+
+if [ ${BUILD_LINUX_AARCH64} -gt 0 ]; then
+    build_linux "aarch64" "--host=aarch64-linux-gnu" "Toolchain-linux-aarch64.cmake"
 fi
 
 ##########################
@@ -147,6 +190,8 @@ fi
 ##########################
 
 if [ ${BUILD_WIN64} -gt 0 ]; then
+    WIN_TARGET_DIR="windows-x86_64"
+
     export MINGW=x86_64-w64-mingw32
     export CC=${MINGW}-gcc
     export CXX=${MINGW}-g++
@@ -171,14 +216,16 @@ if [ ${BUILD_WIN64} -gt 0 ]; then
     }
     popd
 
-    LIBS="inst/lib/libimagequant.dll JVips/src/main/c/JVips.dll"
+    # Copy to architecture-specific output directory
+    mkdir -p "${BUILDDIR}/${WIN_TARGET_DIR}/"
 
+    LIBS="inst/lib/libimagequant.dll JVips/src/main/c/JVips.dll"
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/JVipsTest.dll"
     fi
 
     for LIB in $LIBS; do
-        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/
+        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}/${WIN_TARGET_DIR}/"
     done
 fi
 
@@ -187,6 +234,10 @@ fi
 ##########################
 
 if [ ${BUILD_MACOS} -gt 0 ]; then
+    # Detect macOS architecture
+    MACOS_ARCH=$(detect_arch)
+    MACOS_TARGET_DIR="darwin-${MACOS_ARCH}"
+
     export HOST=""
     export TARGET=macOS
     export PREFIX="${BUILDDIR}/${TARGET}"/inst/
@@ -218,14 +269,16 @@ if [ ${BUILD_MACOS} -gt 0 ]; then
     }
     popd
 
-    LIBS="JVips/src/main/c/libJVips.dylib"
+    # Copy to architecture-specific output directory
+    mkdir -p "${BUILDDIR}/${MACOS_TARGET_DIR}/"
 
+    LIBS="JVips/src/main/c/libJVips.dylib"
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/libJVipsTest.dylib"
     fi
 
     for LIB in $LIBS; do
-        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/
+        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}/${MACOS_TARGET_DIR}/"
     done
 
 fi
@@ -246,15 +299,23 @@ if [ ${RUN_BENCHMARK} -gt 0 ]; then
 fi
 
 if [ ${DIST} -gt 0 ]; then
-    if [ ${BUILD_LINUX} -gt 0 ]; then
-       tar -czvf "JVips-linux.tar.gz" JVips.jar -C "${BUILDDIR}"/linux/inst/ bin lib include share
+    if [ ${BUILD_LINUX_X86_64} -gt 0 ]; then
+       tar -czvf "JVips-linux-x86_64.tar.gz" JVips.jar -C "${BUILDDIR}"/linux-x86_64/inst/ bin lib include share
+    fi
+    if [ ${BUILD_LINUX_AARCH64} -gt 0 ]; then
+       tar -czvf "JVips-linux-aarch64.tar.gz" JVips.jar -C "${BUILDDIR}"/linux-aarch64/inst/ bin lib include share
     fi
 fi
 
-if [ -n "${CI}" ]; then
-    tar czvf "JVips-libs.tar.gz" -C "${BUILDDIR}"/all/ .
-fi
-
 if [ "${CI}" = "true" ]; then
-    tar -czvf JVips-libs.tar.gz build/all/*
+    # Archive all platform-specific libraries
+    LIBS_ARCHIVE=""
+    for PLATFORM_DIR in linux-x86_64 linux-aarch64 darwin-x86_64 darwin-aarch64 windows-x86_64; do
+        if [ -d "${BUILDDIR}/${PLATFORM_DIR}" ]; then
+            LIBS_ARCHIVE="${LIBS_ARCHIVE} ${PLATFORM_DIR}"
+        fi
+    done
+    if [ -n "${LIBS_ARCHIVE}" ]; then
+        (cd "${BUILDDIR}" && tar -czvf "${BASEDIR}/JVips-libs.tar.gz" ${LIBS_ARCHIVE})
+    fi
 fi

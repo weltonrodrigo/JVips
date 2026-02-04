@@ -129,10 +129,13 @@ The GIR file is XML with this structure:
 - [x] Update libpng to 1.6.43 (old 1.6.37 URL was 404)
 - [x] Remove obsolete VipsForeignJpegSubsample enum (renamed to VipsForeignSubsample)
 
-### Phase 3: Linux arm64 Build
-- [ ] Add arm64 cross-compilation support
-- [ ] Update Docker images for arm64
-- [ ] Test on arm64 hardware/emulation
+### Phase 3: Linux arm64 Build (Complete)
+- [x] Add arm64 native compilation support (Toolchain-linux-aarch64.cmake)
+- [x] Create manylinux2014_aarch64-based Docker image for arm64 builds
+- [x] Update build.sh with --with-linux-arm64 flag and architecture detection
+- [x] Make SIMD flags architecture-conditional (AVX2/SSE for x86_64, NEON for aarch64)
+- [x] Update Vips.java with platform detection ({os}-{arch} library paths)
+- [x] Update pom.xml for multi-arch JAR packaging (linux-x86_64/, linux-aarch64/, etc.)
 
 ## Known Issues / TODO
 

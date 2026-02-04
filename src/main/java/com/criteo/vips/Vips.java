@@ -22,6 +22,36 @@ import java.util.logging.Logger;
 public class Vips {
     private static final Logger LOGGER = Logger.getLogger("com.criteo.vips.Vips");
     private static final String SYSTEM_NAME = System.getProperty("os.name").toLowerCase();
+    private static final String SYSTEM_ARCH = System.getProperty("os.arch").toLowerCase();
+    private static final String PLATFORM = detectPlatform();
+
+    /**
+     * Detects the current platform as {os}-{arch}.
+     * Returns values like: linux-x86_64, linux-aarch64, darwin-x86_64, darwin-aarch64, windows-x86_64
+     */
+    private static String detectPlatform() {
+        String os;
+        if (SYSTEM_NAME.contains("linux")) {
+            os = "linux";
+        } else if (SYSTEM_NAME.contains("mac") || SYSTEM_NAME.contains("darwin")) {
+            os = "darwin";
+        } else if (SYSTEM_NAME.contains("win")) {
+            os = "windows";
+        } else {
+            os = "unknown";
+        }
+
+        String arch;
+        if (SYSTEM_ARCH.equals("amd64") || SYSTEM_ARCH.equals("x86_64")) {
+            arch = "x86_64";
+        } else if (SYSTEM_ARCH.equals("aarch64") || SYSTEM_ARCH.equals("arm64")) {
+            arch = "aarch64";
+        } else {
+            arch = SYSTEM_ARCH;
+        }
+
+        return os + "-" + arch;
+    }
 
     private static final String[] LINUX_LIBRARIES = {
             "aom",
@@ -94,17 +124,28 @@ public class Vips {
     private static void loadLibraryFromJar(String name) throws IOException {
         String libName = System.mapLibraryName(name);
         File temp;
-        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(libName)) {
-            if (in == null) {
-                LOGGER.warning("Could not load lib '" + libName + "' via classloader");
-                return;
-            }
+
+        // Try platform-specific path first (e.g., linux-x86_64/libJVips.so)
+        String platformPath = PLATFORM + "/" + libName;
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(platformPath);
+
+        // Fallback to root path for backward compatibility
+        if (in == null) {
+            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(libName);
+        }
+
+        if (in == null) {
+            LOGGER.warning("Could not load lib '" + libName + "' via classloader (tried " + platformPath + " and root)");
+            return;
+        }
+
+        try (InputStream is = in) {
             byte[] buffer = new byte[1024];
             int read;
             temp = File.createTempFile(libName, "");
             temp.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(temp)) {
-                while ((read = in.read(buffer)) != -1) {
+                while ((read = is.read(buffer)) != -1) {
                     fos.write(buffer, 0, read);
                 }
             }

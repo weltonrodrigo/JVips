@@ -64,26 +64,93 @@
             </activation>
             <build>
                 <resources>
+                    <!-- Linux x86_64 -->
                     <resource>
-                        <directory>${project.basedir}/build/all/</directory>
+                        <directory>${project.basedir}/build/linux-x86_64/</directory>
+                        <targetPath>linux-x86_64</targetPath>
                         <includes>
-                            <include>*</include>
+                            <include>*.so</include>
                         </includes>
                         <excludes>
                             <exclude>libJVipsTest.so</exclude>
-                            <exclude>JVipsTest.dll</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Linux aarch64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>*.so</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.so</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Darwin x86_64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/darwin-x86_64/</directory>
+                        <targetPath>darwin-x86_64</targetPath>
+                        <includes>
+                            <include>*.dylib</include>
+                        </includes>
+                        <excludes>
                             <exclude>libJVipsTest.dylib</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Darwin aarch64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/darwin-aarch64/</directory>
+                        <targetPath>darwin-aarch64</targetPath>
+                        <includes>
+                            <include>*.dylib</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.dylib</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Windows x86_64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/windows-x86_64/</directory>
+                        <targetPath>windows-x86_64</targetPath>
+                        <includes>
+                            <include>*.dll</include>
+                        </includes>
+                        <excludes>
+                            <exclude>JVipsTest.dll</exclude>
                         </excludes>
                     </resource>
                 </resources>
 
                 <testResources>
+                    <!-- Test libraries from all platforms -->
                     <testResource>
-                        <directory>${project.basedir}/build/all/</directory>
+                        <directory>${project.basedir}/build/linux-x86_64/</directory>
                         <includes>
                             <include>libJVipsTest.so</include>
-                            <include>JVipsTest.dll</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/linux-aarch64/</directory>
+                        <includes>
+                            <include>libJVipsTest.so</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/darwin-x86_64/</directory>
+                        <includes>
                             <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/darwin-aarch64/</directory>
+                        <includes>
+                            <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/windows-x86_64/</directory>
+                        <includes>
+                            <include>JVipsTest.dll</include>
                         </includes>
                     </testResource>
 
@@ -99,36 +166,90 @@
 
         <profile>
             <id>minimal</id>
-            <!-- no dependencies to include -->
+            <!-- no dependencies to include - only JVips wrapper library -->
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>-Djava.library.path=./build/linux/inst/lib/</argLine>
+                            <argLine>-Djava.library.path=./build/linux-x86_64/inst/lib/:./build/linux-aarch64/inst/lib/</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
 
                 <resources>
+                    <!-- Linux x86_64 -->
                     <resource>
-                        <directory>${project.basedir}/build/all/</directory>
+                        <directory>${project.basedir}/build/linux-x86_64/</directory>
+                        <targetPath>linux-x86_64</targetPath>
                         <includes>
                             <include>libJVips.so</include>
-                            <include>JVips.dll</include>
+                        </includes>
+                    </resource>
+                    <!-- Linux aarch64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>libJVips.so</include>
+                        </includes>
+                    </resource>
+                    <!-- Darwin x86_64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/darwin-x86_64/</directory>
+                        <targetPath>darwin-x86_64</targetPath>
+                        <includes>
                             <include>libJVips.dylib</include>
+                        </includes>
+                    </resource>
+                    <!-- Darwin aarch64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/darwin-aarch64/</directory>
+                        <targetPath>darwin-aarch64</targetPath>
+                        <includes>
+                            <include>libJVips.dylib</include>
+                        </includes>
+                    </resource>
+                    <!-- Windows x86_64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/windows-x86_64/</directory>
+                        <targetPath>windows-x86_64</targetPath>
+                        <includes>
+                            <include>JVips.dll</include>
                         </includes>
                     </resource>
                 </resources>
 
                 <testResources>
                     <testResource>
-                        <directory>${project.basedir}/build/all/</directory>
+                        <directory>${project.basedir}/build/linux-x86_64/</directory>
                         <includes>
                             <include>libJVipsTest.so</include>
-                            <include>JVipsTest.dll</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/linux-aarch64/</directory>
+                        <includes>
+                            <include>libJVipsTest.so</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/darwin-x86_64/</directory>
+                        <includes>
                             <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/darwin-aarch64/</directory>
+                        <includes>
+                            <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/windows-x86_64/</directory>
+                        <includes>
+                            <include>JVipsTest.dll</include>
                         </includes>
                     </testResource>
                 </testResources>
@@ -194,26 +315,92 @@
                 </plugins>
 
                 <resources>
+                    <!-- Linux x86_64 -->
                     <resource>
-                        <directory>${project.basedir}/build/all/</directory>
+                        <directory>${project.basedir}/build/linux-x86_64/</directory>
+                        <targetPath>linux-x86_64</targetPath>
                         <includes>
-                            <include>*</include>
+                            <include>*.so</include>
                         </includes>
                         <excludes>
                             <exclude>libJVipsTest.so</exclude>
-                            <exclude>JVipsTest.dll</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Linux aarch64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>*.so</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.so</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Darwin x86_64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/darwin-x86_64/</directory>
+                        <targetPath>darwin-x86_64</targetPath>
+                        <includes>
+                            <include>*.dylib</include>
+                        </includes>
+                        <excludes>
                             <exclude>libJVipsTest.dylib</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Darwin aarch64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/darwin-aarch64/</directory>
+                        <targetPath>darwin-aarch64</targetPath>
+                        <includes>
+                            <include>*.dylib</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.dylib</exclude>
+                        </excludes>
+                    </resource>
+                    <!-- Windows x86_64 -->
+                    <resource>
+                        <directory>${project.basedir}/build/windows-x86_64/</directory>
+                        <targetPath>windows-x86_64</targetPath>
+                        <includes>
+                            <include>*.dll</include>
+                        </includes>
+                        <excludes>
+                            <exclude>JVipsTest.dll</exclude>
                         </excludes>
                     </resource>
                 </resources>
 
                 <testResources>
                     <testResource>
-                        <directory>${project.basedir}/build/all/</directory>
+                        <directory>${project.basedir}/build/linux-x86_64/</directory>
                         <includes>
                             <include>libJVipsTest.so</include>
-                            <include>JVipsTest.dll</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/linux-aarch64/</directory>
+                        <includes>
+                            <include>libJVipsTest.so</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/darwin-x86_64/</directory>
+                        <includes>
                             <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/darwin-aarch64/</directory>
+                        <includes>
+                            <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/windows-x86_64/</directory>
+                        <includes>
+                            <include>JVipsTest.dll</include>
                         </includes>
                     </testResource>
 

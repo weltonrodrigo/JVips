@@ -14,11 +14,28 @@ endforeach()
 
 set(VIPS_VERSION ${VIPS_VERSION} PARENT_SCOPE)
 
-# Set the host target
+# Set the host target based on BUILD_TARGET
 if (NOT DEFINED BUILD_TARGET)
   set(CONFIGURE_HOST "--host=x86_64-pc-linux")
+  set(TARGET_ARCH "x86_64")
+elseif(${BUILD_TARGET} STREQUAL "linux-x86_64")
+  set(CONFIGURE_HOST "--host=x86_64-pc-linux")
+  set(TARGET_ARCH "x86_64")
+elseif(${BUILD_TARGET} STREQUAL "linux-aarch64")
+  set(CONFIGURE_HOST "--host=aarch64-linux-gnu")
+  set(TARGET_ARCH "aarch64")
+elseif(${BUILD_TARGET} STREQUAL "linux")
+  # Legacy support - detect from system processor
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+    set(CONFIGURE_HOST "--host=aarch64-linux-gnu")
+    set(TARGET_ARCH "aarch64")
+  else()
+    set(CONFIGURE_HOST "--host=x86_64-pc-linux")
+    set(TARGET_ARCH "x86_64")
+  endif()
 elseif(${BUILD_TARGET} STREQUAL "w64")
   set(CONFIGURE_HOST "--host=x86_64-w64-mingw32")
+  set(TARGET_ARCH "x86_64")
 endif()
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
@@ -49,17 +66,23 @@ list(APPEND CONFIGURE_VARS
 find_library(LIBIMAGEQUANT imagequant PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if (NOT LIBIMAGEQUANT)
     # https://github.com/ImageOptim/libimagequant/issues/36
-    if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 AND ${BUILD_TARGET} STREQUAL "linux")
+    if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 AND BUILD_TARGET MATCHES "linux")
         set(LIQ_OPENMP "--with-openmp")
     else()
         set(LIQ_OPENMP "--without-openmp")
+    endif()
+    # SSE is x86_64-only; aarch64 uses auto-detected NEON intrinsics
+    if (TARGET_ARCH STREQUAL "x86_64")
+        set(LIQ_SSE "--with-sse")
+    else()
+        set(LIQ_SSE "")
     endif()
     ExternalProject_Add(libimagequant
       URL "https://github.com/ImageOptim/libimagequant/archive/${LIQ_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libimagequant"
       CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${CONFIGURE_CFLAGS}
       --prefix=${EXT_INSTALL_DIR}
-      --with-sse
+      ${LIQ_SSE}
       ${LIQ_OPENMP}
       BUILD_IN_SOURCE 1
       )
@@ -193,6 +216,14 @@ endif()
 
 find_library(LIBWEBP webp webpmux webpdemux PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT LIBWEBP)
+    # SIMD flags are architecture-specific
+    if (TARGET_ARCH STREQUAL "x86_64")
+        set(WEBP_SIMD_FLAGS --enable-avx2 --enable-sse4.1 --enable-sse2)
+    elseif(TARGET_ARCH STREQUAL "aarch64")
+        set(WEBP_SIMD_FLAGS --enable-neon --disable-sse4.1 --disable-sse2 --disable-avx2)
+    else()
+        set(WEBP_SIMD_FLAGS "")
+    endif()
     ExternalProject_Add(libwebp
       URL "http://downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libwebp"
@@ -212,9 +243,7 @@ if(NOT LIBWEBP)
       --enable-libwebpmux
       --without-orc
       --disable-assert
-      --enable-avx2
-      --enable-sse4.1
-      --enable-sse2
+      ${WEBP_SIMD_FLAGS}
       --enable-threading
       DEPENDS libjpeg libpng giflib tiff
       )

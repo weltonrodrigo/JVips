@@ -66,4 +66,4 @@ RUN echo 'for scl in /opt/rh/*/enable; do source $scl; done' >> /etc/profile.d/r
 
 USER $UNAME
 
-CMD ["bash", "-l", "-ex", "build.sh", "--with-linux", "--without-w64", "--without-macos"]
+CMD ["bash", "-l", "-ex", "build.sh", "--with-linux-x86_64", "--without-linux-arm64", "--without-w64", "--without-macos"]
