@@ -259,6 +259,12 @@ def main():
         
         with tarfile.open(tarball) as tf:
             tf.extractall()
+    
+    # Check if documentation directory exists after extraction
+    if not os.path.isdir(documentation):
+        print(f"Documentation not found at {documentation}")
+        print("Skipping enum generation - using existing enum files from repository")
+        return
 
     with open(os.path.join(os.getcwd(), 'LICENSE'), 'r', encoding='utf-8') as infile:
         license_comment = infile.read()
