@@ -306,8 +306,8 @@ endif()
 find_library(VIPS vips PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT VIPS)
     # Cannot set CFLAGS with space separated flags
-    # Use releases URL for libvips 8.18+ (.tar.xz), older versions use .tar.gz
-    # GitHub archive URLs don't include build files
+    # libvips 8.18+ uses .tar.xz format from releases URL
+    # (GitHub archive URLs don't include build files like configure/autogen.sh)
     ExternalProject_Add(libvips
       URL "https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.xz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libvips"
