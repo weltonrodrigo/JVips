@@ -244,10 +244,27 @@ def main():
         os.remove(c_file)
 
     if not os.path.isdir(documentation):
-        url = f'https://github.com/libvips/libvips/releases/download/v{version}/vips-{version}.tar.gz'
-        tarball = wget.download(url)
+        # Try .tar.xz first (used by 8.18+), then fall back to .tar.gz
+        url_xz = f'https://github.com/libvips/libvips/releases/download/v{version}/vips-{version}.tar.xz'
+        url_gz = f'https://github.com/libvips/libvips/releases/download/v{version}/vips-{version}.tar.gz'
+        
+        try:
+            tarball = wget.download(url_xz)
+        except (Exception) as e:
+            # Fall back to .tar.gz for older versions (8.12.2 and earlier)
+            if '404' in str(e):
+                tarball = wget.download(url_gz)
+            else:
+                raise
+        
         with tarfile.open(tarball) as tf:
             tf.extractall()
+    
+    # Check if documentation directory exists after extraction
+    if not os.path.isdir(documentation):
+        print(f"Documentation not found at {documentation}")
+        print("Skipping enum generation - using existing enum files from repository")
+        return
 
     with open(os.path.join(os.getcwd(), 'LICENSE'), 'r', encoding='utf-8') as infile:
         license_comment = infile.read()

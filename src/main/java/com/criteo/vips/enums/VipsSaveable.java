@@ -29,7 +29,8 @@ public enum VipsSaveable {
     RgbCmyk(4),
     // any number of bands (eg. TIFF)
     Any(5),
-    Last(6);
+    // libvips 8.18+ uses 99 as sentinel (was 6 in 8.12.2)
+    Last(99);
 
     private int value;
     private static Map map = new HashMap<VipsSaveable, Integer>();

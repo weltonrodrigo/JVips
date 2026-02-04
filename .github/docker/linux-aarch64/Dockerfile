@@ -36,8 +36,10 @@ RUN ln -s /opt/python/cp310-cp310/bin/python3 /usr/local/bin/python3 && \
     ln -s /opt/python/cp310-cp310/bin/pip /usr/local/bin/pip3 && \
     ln -s /opt/python/cp310-cp310/bin/pip /usr/local/bin/pip
 
-# Install meson and ninja
-RUN pip3 install meson ninja
+# Install meson and ninja, then symlink them to /usr/local/bin/
+RUN pip3 install meson ninja && \
+    ln -s /opt/python/cp310-cp310/bin/meson /usr/local/bin/meson && \
+    ln -s /opt/python/cp310-cp310/bin/ninja /usr/local/bin/ninja
 
 # Install Maven (not in CentOS 7 repos for aarch64)
 ARG MAVEN_VERSION=3.9.6
