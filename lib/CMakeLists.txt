@@ -309,6 +309,27 @@ else()
     add_custom_target(lcms2 "")
 endif()
 
+# Highway SIMD library - provides significant performance improvements for libvips
+# On ARM64, Highway uses NEON (and SVE on newer hardware) for 5-10x speedups
+find_library(LIBHWY hwy PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
+if(NOT LIBHWY)
+    ExternalProject_Add(libhwy
+      URL "https://github.com/google/highway/archive/refs/tags/${HWY_VERSION}.tar.gz"
+      PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libhwy"
+      CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX=${EXT_INSTALL_DIR}
+      -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+      -DCMAKE_BUILD_TYPE=Release
+      -DBUILD_SHARED_LIBS=ON
+      -DBUILD_TESTING=OFF
+      -DHWY_ENABLE_EXAMPLES=OFF
+      -DHWY_ENABLE_INSTALL=ON
+      BUILD_IN_SOURCE 0
+      )
+else()
+    add_custom_target(libhwy "")
+endif()
+
 find_library(VIPS vips PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT VIPS)
     # Build libvips using meson (required for 8.18.0+)
@@ -335,7 +356,7 @@ if(NOT VIPS)
         ${CMAKE_CURRENT_BINARY_DIR}/libvips/src/libvips
       BUILD_COMMAND meson compile -C ${LIBVIPS_BUILD_DIR}
       INSTALL_COMMAND meson install -C ${LIBVIPS_BUILD_DIR}
-      DEPENDS libjpeg libpng libspng giflib libwebp libimagequant lcms2 libheif tiff
+      DEPENDS libjpeg libpng libspng giflib libwebp libimagequant lcms2 libheif tiff libhwy
       BUILD_IN_SOURCE 0
       )
 else()

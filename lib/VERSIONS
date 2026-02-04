@@ -31,5 +31,8 @@ LCMS2_VERSION=2.11
 # renovate: datasource=gitlab-tags depName=libtiff packageName=libtiff/libtiff
 TIFF_VERSION=4.1.0
 
+# renovate: datasource=github-releases depName=highway packageName=google/highway
+HWY_VERSION=1.3.0
+
 # renovate: datasource=github-releases depName=libvips packageName=libvips/libvips
 VIPS_VERSION=8.18.0
