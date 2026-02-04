@@ -51,18 +51,20 @@ command -v pkg-config || {
 }
 
 [ -z "$GITHUB_ACTIONS" ] || {
-    rm /usr/local/bin/2to3
-    brew unlink python@3.9
-    brew uninstall --ignore-dependencies sqlite
-    brew uninstall llvm
-    brew uninstall --ignore-dependencies php
-    brew uninstall postgresql
+    rm -f /usr/local/bin/2to3 || true
+    brew unlink python@3.9 2>/dev/null || true
+    brew uninstall --ignore-dependencies sqlite 2>/dev/null || true
+    brew uninstall llvm 2>/dev/null || true
+    brew uninstall --ignore-dependencies php 2>/dev/null || true
+    brew uninstall postgresql 2>/dev/null || true
 }
 
 source lib/VERSIONS
-command -v vipsthumbnail && vipsthumbnail --vips-version | grep -q "${VIPS_VERSION}" || {
-    brew-install-version vips "${VIPS_VERSION}" || {
+command -v vipsthumbnail || {
+    # Install latest vips (version pinning via git repo no longer works)
+    brew install vips || {
         echo >&2 "Vips not installed."
         exit 1
     }
 }
+echo "vips $(vipsthumbnail --vips-version) installed."
