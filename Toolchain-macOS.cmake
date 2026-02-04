@@ -9,8 +9,8 @@ SET(CMAKE_CXX_COMPILER clang++)
 SET(CMAKE_AR ar)
 SET(CMAKE_RANLIB ranlib)
 
-# target environment location
-SET(CMAKE_FIND_ROOT_PATH /usr/ ${CMAKE_SOURCE_DIR}/build/${BUILD_TARGET}/inst)
+# target environment location (include Homebrew paths for ARM64 and Intel macOS)
+SET(CMAKE_FIND_ROOT_PATH /usr/ /opt/homebrew/ /usr/local/ ${CMAKE_SOURCE_DIR}/build/${BUILD_TARGET}/inst)
 
 # adjust the default behaviour of the FIND_XXX() commands:
 # search headers and libraries in the target environment, search 
