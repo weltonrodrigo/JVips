@@ -16,15 +16,21 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * How pixels are coded. Normally, pixels are uncoded and can be
+ * manipulated as you would expect. However some file formats code pixels
+ * for compression, and sometimes it's useful to be able to manipulate
+ * images in the coded format. The gaps in the numbering are historical
+ * and must be maintained. Allocate new numbers from the end.
+ */
 public enum VipsCoding {
     Error(-1),
-    // pixels are not coded
+    /** pixels are not coded */
     None(0),
-    // pixels encode 3 float CIELAB values as 4 uchar
+    /** pixels encode 3 float CIELAB values as 4 uchar */
     Labq(2),
-    // pixels encode 3 float RGB as 4 uchar (Radiance coding)
-    Rad(6),
-    Last(7);
+    /** pixels encode 3 float RGB as 4 uchar (Radiance coding) */
+    Rad(6);
 
     private int value;
     private static Map map = new HashMap<VipsCoding, Integer>();

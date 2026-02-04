@@ -16,46 +16,58 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * How the values in an image should be interpreted. For example, a
+ * three-band float image of type [enum@Vips.Interpretation.LAB] should
+ * have its pixels interpreted as coordinates in CIE Lab space. RGB and
+ * sRGB are treated in the same way. Use the colourspace functions if you
+ * want some other behaviour. The gaps in numbering are historical and
+ * must be maintained. Allocate new numbers from the end.
+ */
 public enum VipsInterpretation {
     Error(-1),
-    // generic many-band image
+    /** generic many-band image */
     Multiband(0),
-    // some kind of single-band image
+    /** some kind of single-band image */
     BW(1),
-    // a 1D image, eg. histogram or lookup table
+    /** a 1D image, eg. histogram or lookup table */
     Histogram(10),
-    // the first three bands are CIE XYZ 
+    /** the first three bands are CIE XYZ */
     Xyz(12),
-    // pixels are in CIE Lab space
+    /** pixels are in CIE Lab space */
     Lab(13),
-    // the first four bands are in CMYK space
+    /** the first four bands are in CMYK space */
     Cmyk(15),
+    /** implies [enum@Vips.Coding.LABQ] */
     Labq(16),
-    // generic RGB space
+    /** generic RGB space */
     Rgb(17),
-    // a uniform colourspace based on CMC(1:1)
+    /** a uniform colourspace based on CMC(1:1) */
     Cmc(18),
-    // pixels are in CIE LCh space
+    /** pixels are in CIE LCh space */
     Lch(19),
-    // CIE LAB coded as three signed 16-bit values
+    /** CIE LAB coded as three signed 16-bit values */
     Labs(21),
-    // pixels are sRGB
+    /** pixels are sRGB */
     Srgb(22),
-    // pixels are CIE Yxy
+    /** pixels are CIE Yxy */
     Yxy(23),
-    // image is in fourier space
+    /** image is in fourier space */
     Fourier(24),
-    // generic 16-bit RGB
+    /** generic 16-bit RGB */
     Rgb16(25),
-    // generic 16-bit mono
+    /** generic 16-bit mono */
     Grey16(26),
-    // a matrix
+    /** a matrix */
     Matrix(27),
-    // pixels are scRGB
+    /** pixels are scRGB */
     Scrgb(28),
-    // pixels are HSV
+    /** pixels are HSV */
     Hsv(29),
-    Last(30);
+    /** pixels are in Oklab colourspace */
+    Oklab(30),
+    /** pixels are in Oklch colourspace */
+    Oklch(31);
 
     private int value;
     private static Map map = new HashMap<VipsInterpretation, Integer>();

@@ -17,44 +17,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A direction on a compass. Used for [method@Image.gravity], for
- * example.
+ * Each page of a PDF document can contain multiple page boxes, also
+ * known as boundary boxes or print marks. Each page box defines a region
+ * of the complete page that should be rendered. The default region is
+ * the crop box.
  */
-public enum VipsCompassDirection {
-    /** centre */
-    Centre(0),
-    /** north */
-    North(1),
-    /** east */
-    East(2),
-    /** south */
-    South(3),
-    /** west */
-    West(4),
-    /** north-east */
-    NorthEast(5),
-    /** south-east */
-    SouthEast(6),
-    /** south-west */
-    SouthWest(7),
-    /** north-west */
-    NorthWest(8);
+public enum VipsForeignPdfPageBox {
+    /** media box */
+    Media(0),
+    /** crop box */
+    Crop(1),
+    /** trim box */
+    Trim(2),
+    /** bleed box */
+    Bleed(3),
+    /** art box */
+    Art(4);
 
     private int value;
-    private static Map map = new HashMap<VipsCompassDirection, Integer>();
+    private static Map map = new HashMap<VipsForeignPdfPageBox, Integer>();
 
-    private VipsCompassDirection(int i) {
+    private VipsForeignPdfPageBox(int i) {
       value = i;
     }
 
     static {
-        for (VipsCompassDirection e : VipsCompassDirection.values()) {
+        for (VipsForeignPdfPageBox e : VipsForeignPdfPageBox.values()) {
             map.put(e.value, e);
         }
     }
 
-    public static VipsCompassDirection valueOf(int i) {
-        return (VipsCompassDirection) map.get(i);
+    public static VipsForeignPdfPageBox valueOf(int i) {
+        return (VipsForeignPdfPageBox) map.get(i);
     }
 
     public int getValue() {

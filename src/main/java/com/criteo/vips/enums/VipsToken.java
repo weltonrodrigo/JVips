@@ -16,16 +16,23 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Tokens returned by the vips lexical analyzer, see vips__token_get().
+ * This is used to parse option strings for arguments. Left and right
+ * brackets can be any of (, {, [, <. Strings may be in double quotes,
+ * and may contain escaped quote characters, for example string, "string"
+ * and "str\"ing".
+ */
 public enum VipsToken {
-    // left bracket
+    /** left bracket */
     Left(1),
-    // right bracket
+    /** right bracket */
     Right(2),
-    // string constant
+    /** string constant */
     String(3),
-    // equals sign
+    /** equals sign */
     Equals(4),
-    // comma
+    /** comma */
     Comma(5);
 
     private int value;

@@ -16,14 +16,18 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * See [method@Image.join] and so on. Operations like [method@Image.join]
+ * need to be told whether to align images on the low or high coordinate
+ * edge, or centre. ::: seealso [method@Image.join].
+ */
 public enum VipsAlign {
-    // align low coordinate edge
+    /** align low coordinate edge */
     Low(0),
-    // align centre
+    /** align centre */
     Centre(1),
-    // align high coordinate edge
-    High(2),
-    Last(3);
+    /** align high coordinate edge */
+    High(2);
 
     private int value;
     private static Map map = new HashMap<VipsAlign, Integer>();

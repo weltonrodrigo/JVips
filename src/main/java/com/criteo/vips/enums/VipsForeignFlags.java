@@ -16,16 +16,29 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Some hints about the image loader. [flags@Vips.ForeignFlags.PARTIAL]
+ * means that the image can be read directly from the file without
+ * needing to be unpacked to a temporary image first.
+ * [flags@Vips.ForeignFlags.SEQUENTIAL] means that the loader supports
+ * lazy reading, but only top-to-bottom (sequential) access. Formats like
+ * PNG can read sets of scanlines, for example, but only in order. If
+ * neither PARTIAL or SEQUENTIAL is set, the loader only supports whole
+ * image read. Setting both PARTIAL and SEQUENTIAL is an error.
+ * [flags@Vips.ForeignFlags.BIGENDIAN] means that image pixels are most-
+ * significant byte first. Depending on the native byte order of the host
+ * machine, you may need to swap bytes. See [method@Image.copy].
+ */
 public enum VipsForeignFlags {
-    // no flags set
-    None(0),
-    // the image may be read lazilly
-    Partial(1),
-    // image pixels are most-significant byte first
-    Bigendian(2),
-    // top-to-bottom lazy reading
-    Sequential(4),
-    All(7);
+    /** no flags set */
+    ForeignNone(0),
+    /** the image may be read lazilly */
+    ForeignPartial(1),
+    /** image pixels are most-significant byte first */
+    ForeignBigendian(2),
+    /** top-to-bottom lazy reading */
+    ForeignSequential(4),
+    ForeignAll(7);
 
     private int value;
     private static Map map = new HashMap<VipsForeignFlags, Integer>();

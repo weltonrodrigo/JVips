@@ -16,26 +16,32 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The compression types supported by the tiff writer. Use @Q to set the
+ * jpeg compression level, default 75. Use @predictor to set the lzw or
+ * deflate prediction, default horizontal. Use @lossless to set WEBP
+ * lossless compression. Use @level to set webp and zstd compression
+ * level.
+ */
 public enum VipsForeignTiffCompression {
-    // no compression
+    /** no compression */
     None(0),
-    // jpeg compression
+    /** jpeg compression */
     Jpeg(1),
-    // deflate (zip) compression
+    /** deflate (zip) compression */
     Deflate(2),
-    // packbits compression
+    /** packbits compression */
     Packbits(3),
-    // fax4 compression
+    /** fax4 compression */
     Ccittfax4(4),
-    // LZW compression
+    /** LZW compression */
     Lzw(5),
-    // WEBP compression
+    /** WEBP compression */
     Webp(6),
-    // ZSTD compression
+    /** ZSTD compression */
     Zstd(7),
-    // JP2K compression
-    Jp2K(8),
-    Last(9);
+    /** JP2K compression */
+    Jp2k(8);
 
     private int value;
     private static Map map = new HashMap<VipsForeignTiffCompression, Integer>();

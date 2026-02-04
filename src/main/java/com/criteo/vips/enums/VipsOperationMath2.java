@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.math]. */
 public enum VipsOperationMath2 {
-    // pow( left, right )
+    /** `pow(left, right)` */
     Pow(0),
-    // pow( right, left ) 
+    /** `pow(right, left)` */
     Wop(1),
-    // atan2( left, right ) 
-    Atan2(2),
-    Last(3);
+    /** `atan2(left, right)` */
+    Atan2(2);
 
     private int value;
     private static Map map = new HashMap<VipsOperationMath2, Integer>();

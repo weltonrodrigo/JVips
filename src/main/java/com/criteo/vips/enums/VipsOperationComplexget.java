@@ -16,12 +16,12 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.complexget]. */
 public enum VipsOperationComplexget {
-    // get real component
+    /** get real component */
     Real(0),
-    // get imaginary component
-    Imag(1),
-    Last(2);
+    /** get imaginary component */
+    Imag(1);
 
     private int value;
     private static Map map = new HashMap<VipsOperationComplexget, Integer>();

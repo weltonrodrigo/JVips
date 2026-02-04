@@ -16,16 +16,26 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The netpbm file format to save as. [enum@Vips.ForeignPpmFormat.PBM]
+ * images are single bit. [enum@Vips.ForeignPpmFormat.PGM] images are 8,
+ * 16, or 32-bits, one band. [enum@Vips.ForeignPpmFormat.PPM] images are
+ * 8, 16, or 32-bits, three bands. [enum@Vips.ForeignPpmFormat.PFM]
+ * images are 32-bit float pixels. [enum@Vips.ForeignPpmFormat.PNM]
+ * images are anymap images -- the image format is used to pick the
+ * saver.
+ */
 public enum VipsForeignPpmFormat {
-    // portable bitmap
+    /** portable bitmap */
     Pbm(0),
-    // portable greymap
+    /** portable greymap */
     Pgm(1),
-    // portable pixmap
+    /** portable pixmap */
     Ppm(2),
-    // portable float map
+    /** portable float map */
     Pfm(3),
-    Last(4);
+    /** portable anymap */
+    Pnm(4);
 
     private int value;
     private static Map map = new HashMap<VipsForeignPpmFormat, Integer>();

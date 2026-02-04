@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.round]. */
 public enum VipsOperationRound {
-    // round to nearest
+    /** round to nearest */
     Rint(0),
-    // the smallest integral value not less than
+    /** the smallest integral value not less than */
     Ceil(1),
-    // largest integral value not greater than
-    Floor(2),
-    Last(3);
+    /** largest integral value not greater than */
+    Floor(2);
 
     private int value;
     private static Map map = new HashMap<VipsOperationRound, Integer>();

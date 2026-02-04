@@ -17,44 +17,37 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A direction on a compass. Used for [method@Image.gravity], for
- * example.
+ * The set of image types supported by a saver. ::: seealso
+ * [class@ForeignSave].
  */
-public enum VipsCompassDirection {
-    /** centre */
-    Centre(0),
-    /** north */
-    North(1),
-    /** east */
-    East(2),
-    /** south */
-    South(3),
-    /** west */
-    West(4),
-    /** north-east */
-    NorthEast(5),
-    /** south-east */
-    SouthEast(6),
-    /** south-west */
-    SouthWest(7),
-    /** north-west */
-    NorthWest(8);
+public enum VipsForeignSaveable {
+    /** saver supports everything (eg. TIFF) */
+    Any(0),
+    /** 1 band */
+    Mono(1),
+    /** 3 bands */
+    Rgb(2),
+    /** 4 bands */
+    Cmyk(4),
+    /** an extra band */
+    Alpha(8),
+    All(15);
 
     private int value;
-    private static Map map = new HashMap<VipsCompassDirection, Integer>();
+    private static Map map = new HashMap<VipsForeignSaveable, Integer>();
 
-    private VipsCompassDirection(int i) {
+    private VipsForeignSaveable(int i) {
       value = i;
     }
 
     static {
-        for (VipsCompassDirection e : VipsCompassDirection.values()) {
+        for (VipsForeignSaveable e : VipsForeignSaveable.values()) {
             map.put(e.value, e);
         }
     }
 
-    public static VipsCompassDirection valueOf(int i) {
-        return (VipsCompassDirection) map.get(i);
+    public static VipsForeignSaveable valueOf(int i) {
+        return (VipsForeignSaveable) map.get(i);
     }
 
     public int getValue() {

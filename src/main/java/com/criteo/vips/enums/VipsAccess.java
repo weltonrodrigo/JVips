@@ -16,13 +16,21 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The type of access an operation has to supply. See
+ * [method@Image.tilecache] and [class@Foreign].
+ * [enum@Vips.Access.RANDOM] means requests can come in any order.
+ * [enum@Vips.Access.SEQUENTIAL] means requests will be top-to-bottom,
+ * but with some amount of buffering behind the read point for small non-
+ * local accesses.
+ */
 public enum VipsAccess {
-    // can read anywhere
+    /** can read anywhere */
     Random(0),
-    // top-to-bottom reading only, but with a small buffer
+    /** top-to-bottom reading only, but with a small buffer */
     Sequential(1),
-    SequentialUnbuffered(2),
-    Last(3);
+    /** deprecated, use [enum@Vips.Access.SEQUENTIAL] instead */
+    SequentialUnbuffered(2);
 
     private int value;
     private static Map map = new HashMap<VipsAccess, Integer>();

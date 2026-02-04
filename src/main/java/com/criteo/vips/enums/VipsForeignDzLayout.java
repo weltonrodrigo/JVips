@@ -16,18 +16,18 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** What directory layout and metadata standard to use. */
 public enum VipsForeignDzLayout {
-    // use DeepZoom directory layout
+    /** use DeepZoom directory layout */
     Dz(0),
-    // use Zoomify directory layout
+    /** use Zoomify directory layout */
     Zoomify(1),
-    // use Google maps directory layout
+    /** use Google maps directory layout */
     Google(2),
-    // use IIIF v2 directory layout
+    /** use IIIF v2 directory layout */
     Iiif(3),
-    // use IIIF v3 directory layout
-    Iiif3(4),
-    Last(5);
+    /** use IIIF v3 directory layout */
+    Iiif3(4);
 
     private int value;
     private static Map map = new HashMap<VipsForeignDzLayout, Integer>();

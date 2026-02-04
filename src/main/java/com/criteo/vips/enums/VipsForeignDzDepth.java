@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** How many pyramid layers to create. */
 public enum VipsForeignDzDepth {
-    // create layers down to 1x1 pixel
+    /** create layers down to 1x1 pixel */
     Onepixel(0),
-    // create layers down to 1x1 tile
+    /** create layers down to 1x1 tile */
     Onetile(1),
-    // only create a single layer
-    One(2),
-    Last(3);
+    /** only create a single layer */
+    One(2);
 
     private int value;
     private static Map map = new HashMap<VipsForeignDzDepth, Integer>();

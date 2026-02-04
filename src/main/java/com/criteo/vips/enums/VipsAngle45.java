@@ -16,24 +16,27 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * See [method@Image.rot45] and so on. Fixed rotate angles. ::: seealso
+ * [method@Image.rot45].
+ */
 public enum VipsAngle45 {
-    // no rotate
+    /** no rotate */
     D0(0),
-    // 45 degrees clockwise 
+    /** 45 degrees clockwise */
     D45(1),
-    // 90 degrees clockwise
+    /** 90 degrees clockwise */
     D90(2),
-    // 135 degrees clockwise
+    /** 135 degrees clockwise */
     D135(3),
-    // 180 degrees 
+    /** 180 degrees */
     D180(4),
-    // 135 degrees anti-clockwise
+    /** 135 degrees anti-clockwise */
     D225(5),
-    // 90 degrees anti-clockwise
+    /** 90 degrees anti-clockwise */
     D270(6),
-    // 45 degrees anti-clockwise
-    D315(7),
-    Last(8);
+    /** 45 degrees anti-clockwise */
+    D315(7);
 
     private int value;
     private static Map map = new HashMap<VipsAngle45, Integer>();

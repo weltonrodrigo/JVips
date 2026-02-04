@@ -16,18 +16,18 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.boolean]. */
 public enum VipsOperationBoolean {
-    // &
+    /** `&` */
     And(0),
-    // |
+    /** `|` */
     Or(1),
-    // ^
+    /** `^` */
     Eor(2),
-    // >
+    /** `>>` */
     Lshift(3),
-    // <<
-    Rshift(4),
-    Last(5);
+    /** `<<` */
+    Rshift(4);
 
     private int value;
     private static Map map = new HashMap<VipsOperationBoolean, Integer>();

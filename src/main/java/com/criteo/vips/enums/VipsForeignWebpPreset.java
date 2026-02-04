@@ -16,20 +16,20 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Tune lossy encoder settings for different image types. */
 public enum VipsForeignWebpPreset {
-    // default preset
+    /** default preset */
     Default(0),
-    // digital picture, like portrait, inner shot
+    /** digital picture, like portrait, inner shot */
     Picture(1),
-    // outdoor photograph, with natural lighting
+    /** outdoor photograph, with natural lighting */
     Photo(2),
-    // hand or line drawing, with high-contrast details
+    /** hand or line drawing, with high-contrast details */
     Drawing(3),
-    // small-sized colorful images
+    /** small-sized colorful images */
     Icon(4),
-    // text-like
-    Text(5),
-    Last(6);
+    /** text-like */
+    Text(5);
 
     private int value;
     private static Map map = new HashMap<VipsForeignWebpPreset, Integer>();

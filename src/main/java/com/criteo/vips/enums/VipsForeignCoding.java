@@ -16,36 +16,35 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum VipsSaveable {
-    // 1 band (eg. CSV)
-    Mono(0),
-    // 1 or 3 bands (eg. PPM) 
-    Rgb(1),
-    // 1, 2, 3 or 4 bands (eg. PNG)
-    Rgba(2),
-    // 3 or 4 bands (eg. WEBP)
-    RgbaOnly(3),
-    // 1, 3 or 4 bands (eg. JPEG)
-    RgbCmyk(4),
-    // any number of bands (eg. TIFF)
-    Any(5),
-    Last(6);
+/**
+ * The set of coding types supported by a saver. ::: seealso
+ * [enum@Coding].
+ */
+public enum VipsForeignCoding {
+    /** saver supports [enum@Vips.Coding.NONE] */
+    None(1),
+    /** saver supports [enum@Vips.Coding.LABQ] */
+    Labq(2),
+    /** saver supports [enum@Vips.Coding.RAD] */
+    Rad(4),
+    /** saver supports all coding types */
+    All(7);
 
     private int value;
-    private static Map map = new HashMap<VipsSaveable, Integer>();
+    private static Map map = new HashMap<VipsForeignCoding, Integer>();
 
-    private VipsSaveable(int i) {
+    private VipsForeignCoding(int i) {
       value = i;
     }
 
     static {
-        for (VipsSaveable e : VipsSaveable.values()) {
+        for (VipsForeignCoding e : VipsForeignCoding.values()) {
             map.put(e.value, e);
         }
     }
 
-    public static VipsSaveable valueOf(int i) {
-        return (VipsSaveable) map.get(i);
+    public static VipsForeignCoding valueOf(int i) {
+        return (VipsForeignCoding) map.get(i);
     }
 
     public int getValue() {

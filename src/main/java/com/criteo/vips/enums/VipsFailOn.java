@@ -16,16 +16,21 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * How sensitive loaders are to errors, from never stop (very
+ * insensitive), to stop on the smallest warning (very sensitive). Each
+ * one implies the ones before it, so [enum@Vips.FailOn.ERROR] implies
+ * [enum@Vips.FailOn.TRUNCATED].
+ */
 public enum VipsFailOn {
-    // never stop 
+    /** never stop */
     None(0),
-    // stop on image truncated, nothing else
+    /** stop on image truncated, nothing else */
     Truncated(1),
-    // stop on serious error or truncation
+    /** stop on serious error or truncation */
     Error(2),
-    // stop on anything, even warnings
-    Warning(3),
-    Last(4);
+    /** stop on anything, even warnings */
+    Warning(3);
 
     private int value;
     private static Map map = new HashMap<VipsFailOn, Integer>();

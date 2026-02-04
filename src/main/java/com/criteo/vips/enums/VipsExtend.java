@@ -16,19 +16,33 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * See [method@Image.embed], [method@Image.conv], [method@Image.affine]
+ * and so on. When the edges of an image are extended, you can specify
+ * how you want the extension done. [enum@Vips.Extend.BLACK] -- new
+ * pixels are black, ie. all bits are zero. [enum@Vips.Extend.COPY] --
+ * each new pixel takes the value of the nearest edge pixel
+ * [enum@Vips.Extend.REPEAT] -- the image is tiled to fill the new area
+ * [enum@Vips.Extend.MIRROR] -- the image is reflected and tiled to
+ * reduce hash edges [enum@Vips.Extend.WHITE] -- new pixels are white,
+ * ie. all bits are set [enum@Vips.Extend.BACKGROUND] -- colour set from
+ * the @background property We have to specify the exact value of each
+ * enum member since we have to keep these frozen for back compat with
+ * vips7. ::: seealso [method@Image.embed].
+ */
 public enum VipsExtend {
-    // extend with black (all 0) pixels
+    /** extend with black (all 0) pixels */
     Black(0),
-    // copy the image edges
+    /** copy the image edges */
     Copy(1),
-    // repeat the whole image
+    /** repeat the whole image */
     Repeat(2),
-    // mirror the whole image
+    /** mirror the whole image */
     Mirror(3),
-    // extend with white (all bits set) pixels
+    /** extend with white (all bits set) pixels */
     White(4),
-    Background(5),
-    Last(6);
+    /** extend with colour from the @background property */
+    Background(5);
 
     private int value;
     private static Map map = new HashMap<VipsExtend, Integer>();

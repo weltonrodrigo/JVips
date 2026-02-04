@@ -16,45 +16,40 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A direction on a compass. Used for [method@Image.gravity], for
- * example.
- */
-public enum VipsCompassDirection {
-    /** centre */
-    Centre(0),
-    /** north */
-    North(1),
-    /** east */
-    East(2),
-    /** south */
-    South(3),
-    /** west */
-    West(4),
-    /** north-east */
-    NorthEast(5),
-    /** south-east */
-    SouthEast(6),
-    /** south-west */
-    SouthWest(7),
-    /** north-west */
-    NorthWest(8);
+/** Which metadata to retain. */
+public enum VipsForeignKeep {
+    /** don't attach metadata */
+    None(0),
+    /** keep Exif metadata */
+    Exif(1),
+    /** keep XMP metadata */
+    Xmp(2),
+    /** keep IPTC metadata */
+    Iptc(4),
+    /** keep ICC metadata */
+    Icc(8),
+    /** keep other metadata (e.g. PNG comments) */
+    Other(16),
+    /** keep the gainmap metadata */
+    Gainmap(32),
+    /** keep all metadata */
+    All(63);
 
     private int value;
-    private static Map map = new HashMap<VipsCompassDirection, Integer>();
+    private static Map map = new HashMap<VipsForeignKeep, Integer>();
 
-    private VipsCompassDirection(int i) {
+    private VipsForeignKeep(int i) {
       value = i;
     }
 
     static {
-        for (VipsCompassDirection e : VipsCompassDirection.values()) {
+        for (VipsForeignKeep e : VipsForeignKeep.values()) {
             map.put(e.value, e);
         }
     }
 
-    public static VipsCompassDirection valueOf(int i) {
-        return (VipsCompassDirection) map.get(i);
+    public static VipsForeignKeep valueOf(int i) {
+        return (VipsForeignKeep) map.get(i);
     }
 
     public int getValue() {

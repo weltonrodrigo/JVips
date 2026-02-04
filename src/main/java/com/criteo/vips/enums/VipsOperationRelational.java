@@ -16,19 +16,20 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.relational]. */
 public enum VipsOperationRelational {
-    // ==
+    /** `==` */
     Equal(0),
-    // !=
+    /** `!=` */
     Noteq(1),
-    // <
+    /** `<` */
     Less(2),
-    // <=
+    /** `<=` */
     Lesseq(3),
+    /** `>` */
     More(4),
-    // =
-    Moreeq(5),
-    Last(6);
+    /** `>=` */
+    Moreeq(5);
 
     private int value;
     private static Map map = new HashMap<VipsOperationRelational, Integer>();

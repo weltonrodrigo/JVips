@@ -16,22 +16,29 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Pick the algorithm vips uses to decide image "interestingness". This
+ * is used by [method@Image.smartcrop], for example, to decide what parts
+ * of the image to keep. [enum@Vips.Interesting.NONE] and
+ * [enum@Vips.Interesting.LOW] mean the same -- the crop is positioned at
+ * the top or left. [enum@Vips.Interesting.HIGH] positions at the bottom
+ * or right. ::: seealso [method@Image.smartcrop].
+ */
 public enum VipsInteresting {
-    // do nothing
+    /** do nothing */
     None(0),
-    // just take the centre
+    /** just take the centre */
     Centre(1),
-    // use an entropy measure
+    /** use an entropy measure */
     Entropy(2),
-    // look for features likely to draw human attention
+    /** look for features likely to draw human attention */
     Attention(3),
-    // position the crop towards the low coordinate
+    /** position the crop towards the low coordinate */
     Low(4),
-    // position the crop towards the high coordinate
+    /** position the crop towards the high coordinate */
     High(5),
-    // everything is interesting
-    All(6),
-    Last(7);
+    /** everything is interesting */
+    All(6);
 
     private int value;
     private static Map map = new HashMap<VipsInteresting, Integer>();

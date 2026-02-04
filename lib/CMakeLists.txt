@@ -282,36 +282,31 @@ endif()
 
 find_library(VIPS vips PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT VIPS)
-    # Cannot set CFLAGS with space separated flags
+    # Build libvips using meson (required for 8.18.0+)
+    # This enables introspection to generate Vips-8.0.gir for enum generation
+    set(LIBVIPS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/libvips/build")
     ExternalProject_Add(libvips
       URL "https://github.com/libvips/libvips/archive/v${VIPS_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libvips"
-      CONFIGURE_COMMAND ./autogen.sh
-      PKG_CONFIG_PATH=${EXT_INSTALL_DIR}/lib/pkgconfig:$PKG_CONFIG_PATH
-      LDFLAGS=-L${EXT_INSTALL_DIR}/lib\ -Wl,-rpath,${EXT_INSTALL_DIR}/lib
-      CPPFLAGS=-I${EXT_INSTALL_DIR}/include
-      --prefix=${EXT_INSTALL_DIR}
-      ${CONFIGURE_HOST}
-      --enable-shared
-      --disable-static
-      --disable-dependency-tracking
-      --with-libwebp
-      --with-lcms
-      --with-imagequant
-      --with-jpeg
-      --with-jpeg-includes=${EXT_INSTALL_DIR}/include
-      --with-jpeg-libraries=${EXT_INSTALL_DIR}/lib
-      --with-tiff
-      --with-tiff-includes=${EXT_INSTALL_DIR}/include
-      --with-tiff-libraries=${EXT_INSTALL_DIR}/lib
-      --without-magick
-      --without-orc
-      --without-gsf
-      --without-rsvg
-      ${LIBSPNG_FLAGS}
-      ${LIBHEIF_FLAGS}
+      CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env
+        PKG_CONFIG_PATH=${EXT_INSTALL_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}
+        LDFLAGS=-L${EXT_INSTALL_DIR}/lib
+        CPPFLAGS=-I${EXT_INSTALL_DIR}/include
+        meson setup
+        --prefix=${EXT_INSTALL_DIR}
+        --buildtype=release
+        --default-library=shared
+        -Dintrospection=enabled
+        -Dmodules=disabled
+        -Ddeprecated=false
+        -Dexamples=false
+        -Dcplusplus=false
+        ${LIBVIPS_BUILD_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}/libvips/src/libvips
+      BUILD_COMMAND meson compile -C ${LIBVIPS_BUILD_DIR}
+      INSTALL_COMMAND meson install -C ${LIBVIPS_BUILD_DIR}
       DEPENDS libjpeg libpng libspng giflib libwebp libimagequant lcms2 libheif tiff
-      BUILD_IN_SOURCE 1
+      BUILD_IN_SOURCE 0
       )
 else()
     add_custom_target(libvips "")

@@ -17,44 +17,37 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A direction on a compass. Used for [method@Image.gravity], for
- * example.
+ * The selected encoder to use. If libheif hasn't been compiled with the
+ * selected encoder, we will fallback to the default encoder for the
+ * compression format.
  */
-public enum VipsCompassDirection {
-    /** centre */
-    Centre(0),
-    /** north */
-    North(1),
-    /** east */
-    East(2),
-    /** south */
-    South(3),
-    /** west */
-    West(4),
-    /** north-east */
-    NorthEast(5),
-    /** south-east */
-    SouthEast(6),
-    /** south-west */
-    SouthWest(7),
-    /** north-west */
-    NorthWest(8);
+public enum VipsForeignHeifEncoder {
+    /** auto */
+    Auto(0),
+    /** aom */
+    Aom(1),
+    /** RAV1E */
+    Rav1e(2),
+    /** SVT-AV1 */
+    Svt(3),
+    /** x265 */
+    X265(4);
 
     private int value;
-    private static Map map = new HashMap<VipsCompassDirection, Integer>();
+    private static Map map = new HashMap<VipsForeignHeifEncoder, Integer>();
 
-    private VipsCompassDirection(int i) {
+    private VipsForeignHeifEncoder(int i) {
       value = i;
     }
 
     static {
-        for (VipsCompassDirection e : VipsCompassDirection.values()) {
+        for (VipsForeignHeifEncoder e : VipsForeignHeifEncoder.values()) {
             map.put(e.value, e);
         }
     }
 
-    public static VipsCompassDirection valueOf(int i) {
-        return (VipsCompassDirection) map.get(i);
+    public static VipsForeignHeifEncoder valueOf(int i) {
+        return (VipsForeignHeifEncoder) map.get(i);
     }
 
     public int getValue() {

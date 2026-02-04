@@ -16,30 +16,34 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The format used for each band element. Each corresponds to a native C
+ * type for the current machine. For example,
+ * [enum@Vips.BandFormat.USHORT] is `unsigned short`.
+ */
 public enum VipsBandFormat {
-    // invalid setting
+    /** invalid setting */
     FormatNotset(-1),
-    // unsigned char format
+    /** unsigned char format */
     FormatUchar(0),
-    // char format
+    /** char format */
     FormatChar(1),
-    // unsigned short format
+    /** unsigned short format */
     FormatUshort(2),
-    // short format
+    /** short format */
     FormatShort(3),
-    // unsigned int format
+    /** unsigned int format */
     FormatUint(4),
-    // int format
+    /** int format */
     FormatInt(5),
-    // float format
+    /** float format */
     FormatFloat(6),
-    // complex (two floats) format
+    /** complex (two floats) format */
     FormatComplex(7),
-    // double float format
+    /** double float format */
     FormatDouble(8),
-    // double complex (two double) format
-    FormatDpcomplex(9),
-    FormatLast(10);
+    /** double complex (two double) format */
+    FormatDpcomplex(9);
 
     private int value;
     private static Map map = new HashMap<VipsBandFormat, Integer>();

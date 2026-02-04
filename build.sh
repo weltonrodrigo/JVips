@@ -49,7 +49,6 @@ export BUILDDIR="${BASEDIR}/build"
 
 CMAKE_BIN=$(which cmake3 || which cmake)
 PYTHON_BIN=$(which python3 || which python)
-PIP_BIN=$(which pip-3 || which pip3 || which pip)
 
 # Clear the build dir before anything else in the CI
 if [ "${CI}" = "true" ]; then
@@ -66,14 +65,19 @@ mkdir -p "${BUILDDIR}"/all/
 source lib/VERSIONS
 VERSION="${VIPS_VERSION}-$(git rev-parse --short HEAD)"
 
-(
-    cd script/enum-generator
-    ${PYTHON_BIN} -m venv venv
-    VENV_PYTHON_BIN="./venv/bin/python"
-    VENV_PIP_BIN="./venv/bin/pip"
-    ${VENV_PIP_BIN} install -r requirements.txt
-    ${VENV_PYTHON_BIN} EnumGenerator.py "${VIPS_VERSION}"
-)
+# Function to generate enums from GIR file
+generate_enums() {
+    local GIR_FILE="$1"
+    echo "Generating enums from GIR file: ${GIR_FILE}"
+    (
+        cd script/enum-generator
+        ${PYTHON_BIN} -m venv venv
+        VENV_PIP_BIN="./venv/bin/pip"
+        VENV_PYTHON_BIN="./venv/bin/python"
+        ${VENV_PIP_BIN} install -r requirements.txt
+        ${VENV_PYTHON_BIN} EnumGenerator.py --gir "${GIR_FILE}"
+    )
+}
 
 ##########################
 ###### Build Linux #######
@@ -93,7 +97,28 @@ if [ ${BUILD_LINUX} -gt 0 ]; then
     mkdir -p "${BUILDDIR}/${TARGET}"/JVips
     rm -rf "${BUILDDIR}/${TARGET}"/JVips/*
     pushd "${BUILDDIR}/${TARGET}"/JVips
+
+    # Phase 1: Build native libraries including libvips with meson (generates GIR)
     ${CMAKE_BIN} "${BASEDIR}" -DWITH_LIBHEIF=ON -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+
+    # Build just libvips first to generate the GIR file
+    make -j ${JOBS} libvips || {
+        echo "Linux libvips build failed"
+        exit 1
+    }
+    popd
+
+    # Generate enums from the built GIR file
+    GIR_FILE="${PREFIX}/share/gir-1.0/Vips-8.0.gir"
+    if [ -f "${GIR_FILE}" ]; then
+        generate_enums "${GIR_FILE}"
+    else
+        echo "WARNING: GIR file not found at ${GIR_FILE}"
+        echo "Enum generation skipped - you may need to run it manually"
+    fi
+
+    # Phase 2: Build JVips JNI wrapper
+    pushd "${BUILDDIR}/${TARGET}"/JVips
     make -j ${JOBS} || {
         echo "Linux JVips build failed"
         exit 1
@@ -101,7 +126,7 @@ if [ ${BUILD_LINUX} -gt 0 ]; then
     popd
 
     LIBS="JVips/src/main/c/libJVips.so"
-    
+
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/libJVipsTest.so"
     fi
@@ -143,7 +168,7 @@ if [ ${BUILD_WIN64} -gt 0 ]; then
     popd
 
     LIBS="inst/lib/libimagequant.dll JVips/src/main/c/JVips.dll"
-    
+
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/JVipsTest.dll"
     fi
@@ -163,6 +188,22 @@ if [ ${BUILD_MACOS} -gt 0 ]; then
     export PREFIX="${BUILDDIR}/${TARGET}"/inst/
     export TOOLCHAIN="${BASEDIR}"/Toolchain-macOS.cmake
 
+    # On macOS, generate enums from homebrew's GIR file before building
+    if command -v brew &> /dev/null; then
+        BREW_PREFIX=$(brew --prefix)
+        GIR_FILE="${BREW_PREFIX}/share/gir-1.0/Vips-8.0.gir"
+        if [ -f "${GIR_FILE}" ]; then
+            generate_enums "${GIR_FILE}"
+        else
+            echo "WARNING: GIR file not found at ${GIR_FILE}"
+            echo "Please ensure vips is installed: brew install vips"
+            echo "Enum generation skipped"
+        fi
+    else
+        echo "WARNING: Homebrew not found, cannot locate GIR file"
+        echo "Enum generation skipped"
+    fi
+
     mkdir -p "${BUILDDIR}/${TARGET}"/JVips
     rm -rf "${BUILDDIR}/${TARGET}"/JVips/*
     pushd "${BUILDDIR}/${TARGET}/JVips"
@@ -174,7 +215,7 @@ if [ ${BUILD_MACOS} -gt 0 ]; then
     popd
 
     LIBS="JVips/src/main/c/libJVips.dylib"
-    
+
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/libJVipsTest.dylib"
     fi

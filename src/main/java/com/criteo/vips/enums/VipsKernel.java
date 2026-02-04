@@ -16,20 +16,27 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The resampling kernels vips supports. See [method@Image.reduce], for
+ * example.
+ */
 public enum VipsKernel {
-    // The nearest pixel to the point.
+    /** the nearest pixel to the point */
     Nearest(0),
-    // Convolve with a triangle filter. 
+    /** convolve with a triangle filter */
     Linear(1),
-    // Convolve with a cubic filter. 
+    /** convolve with a cubic filter */
     Cubic(2),
-    // Convolve with a Mitchell kernel.
+    /** convolve with a Mitchell kernel */
     Mitchell(3),
-    // Convolve with a two-lobe Lanczos kernel.
+    /** convolve with a two-lobe Lanczos kernel */
     Lanczos2(4),
-    // Convolve with a three-lobe Lanczos kernel.
+    /** convolve with a three-lobe Lanczos kernel */
     Lanczos3(5),
-    Last(6);
+    /** convolve with Magic Kernel Sharp 2013 */
+    Mks2013(6),
+    /** convolve with Magic Kernel Sharp 2021 */
+    Mks2021(7);
 
     private int value;
     private static Map map = new HashMap<VipsKernel, Integer>();

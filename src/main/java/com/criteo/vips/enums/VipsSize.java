@@ -16,16 +16,19 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controls whether an operation should upsize, downsize, both up and
+ * downsize, or force a size. ::: seealso [ctor@Image.thumbnail].
+ */
 public enum VipsSize {
-    // size both up and down
+    /** size both up and down */
     Both(0),
-    // only upsize
+    /** only upsize */
     Up(1),
-    // only downsize
+    /** only downsize */
     Down(2),
-    // force size, that is, break aspect ratio
-    Force(3),
-    Last(4);
+    /** force size, that is, break aspect ratio */
+    Force(3);
 
     private int value;
     private static Map map = new HashMap<VipsSize, Integer>();

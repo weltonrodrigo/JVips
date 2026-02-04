@@ -16,40 +16,40 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.math]. */
 public enum VipsOperationMath {
-    // sin(), angles in degrees
+    /** `sin()`, angles in degrees */
     Sin(0),
-    // cos(), angles in degrees
+    /** `cos()`, angles in degrees */
     Cos(1),
-    // tan(), angles in degrees
+    /** `tan()`, angles in degrees */
     Tan(2),
-    // asin(), angles in degrees
+    /** `asin()`, angles in degrees */
     Asin(3),
-    // acos(), angles in degrees
+    /** `acos()`, angles in degrees */
     Acos(4),
-    // atan(), angles in degrees
+    /** `atan()`, angles in degrees */
     Atan(5),
-    // log base e 
+    /** log base e */
     Log(6),
-    // log base 10 
+    /** log base 10 */
     Log10(7),
-    // e to the something
+    /** e to the something */
     Exp(8),
-    // 10 to the something
+    /** 10 to the something */
     Exp10(9),
-    // sinh(), angles in radians
+    /** `sinh()`, angles in radians */
     Sinh(10),
-    // cosh(), angles in radians
+    /** `cosh()`, angles in radians */
     Cosh(11),
-    // tanh(), angles in radians
+    /** `tanh()`, angles in radians */
     Tanh(12),
-    // asinh(), angles in radians
+    /** `asinh()`, angles in radians */
     Asinh(13),
-    // acosh(), angles in radians
+    /** `acosh()`, angles in radians */
     Acosh(14),
-    // atanh(), angles in radians
-    Atanh(15),
-    Last(16);
+    /** `atanh()`, angles in radians */
+    Atanh(15);
 
     private int value;
     private static Map map = new HashMap<VipsOperationMath, Integer>();

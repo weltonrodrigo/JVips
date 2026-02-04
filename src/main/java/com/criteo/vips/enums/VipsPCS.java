@@ -16,12 +16,16 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Pick a Profile Connection Space for [method@Image.icc_import] and
+ * [method@Image.icc_export]. LAB is usually best, XYZ can be more
+ * convenient in some cases.
+ */
 public enum VipsPCS {
-    // use CIELAB D65 as the Profile Connection Space
-    csLab(0),
-    // use XYZ as the Profile Connection Space
-    csXyz(1),
-    csLast(2);
+    /** use CIELAB D65 as the Profile Connection Space */
+    PcsLab(0),
+    /** use XYZ as the Profile Connection Space */
+    PcsXyz(1);
 
     private int value;
     private static Map map = new HashMap<VipsPCS, Integer>();

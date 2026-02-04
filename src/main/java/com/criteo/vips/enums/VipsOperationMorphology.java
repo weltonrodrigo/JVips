@@ -16,12 +16,12 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** More like hit-miss, really. ::: seealso [method@Image.morph]. */
 public enum VipsOperationMorphology {
-    // true if all set
+    /** true if all set */
     Erode(0),
-    // true if one set
-    Dilate(1),
-    Last(2);
+    /** true if one set */
+    Dilate(1);
 
     private int value;
     private static Map map = new HashMap<VipsOperationMorphology, Integer>();

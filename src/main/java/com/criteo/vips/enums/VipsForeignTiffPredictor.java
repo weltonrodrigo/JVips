@@ -16,14 +16,17 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The predictor can help deflate and lzw compression. The values are
+ * fixed by the tiff library.
+ */
 public enum VipsForeignTiffPredictor {
-    // no prediction
+    /** no prediction */
     None(1),
-    // horizontal differencing
+    /** horizontal differencing */
     Horizontal(2),
-    // float predictor
-    Float(3),
-    Last(4);
+    /** float predictor */
+    Float(3);
 
     private int value;
     private static Map map = new HashMap<VipsForeignTiffPredictor, Integer>();

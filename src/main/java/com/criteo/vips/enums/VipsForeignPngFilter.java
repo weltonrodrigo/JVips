@@ -16,18 +16,22 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * http://www.w3.org/TR/PNG-Filters.html The values mirror those of png.h
+ * in libpng.
+ */
 public enum VipsForeignPngFilter {
-    // no filtering
+    /** no filtering */
     None(8),
-    // difference to the left
+    /** difference to the left */
     Sub(16),
-    // difference up
+    /** difference up */
     Up(32),
-    // average of left and up
+    /** average of left and up */
     Avg(64),
-    // pick best neighbor predictor automatically
+    /** pick best neighbor predictor automatically */
     Paeth(128),
-    // adaptive
+    /** adaptive */
     All(248);
 
     private int value;

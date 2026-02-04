@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** How accurate an operation should be. */
 public enum VipsPrecision {
-    // int everywhere
+    /** int everywhere */
     Integer(0),
-    // float everywhere
+    /** float everywhere */
     Float(1),
-    // approximate integer output
-    Approximate(2),
-    Last(3);
+    /** approximate integer output */
+    Approximate(2);
 
     private int value;
     private static Map map = new HashMap<VipsPrecision, Integer>();

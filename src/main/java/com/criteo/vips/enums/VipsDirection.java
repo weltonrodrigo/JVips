@@ -16,12 +16,16 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * See [method@Image.flip], [method@Image.join] and so on. Operations
+ * like [method@Image.flip] need to be told whether to flip left-right or
+ * top-bottom. ::: seealso [method@Image.flip], [method@Image.join].
+ */
 public enum VipsDirection {
-    // left-right 
+    /** left-right */
     Horizontal(0),
-    // top-bottom
-    Vertical(1),
-    Last(2);
+    /** top-bottom */
+    Vertical(1);
 
     private int value;
     private static Map map = new HashMap<VipsDirection, Integer>();

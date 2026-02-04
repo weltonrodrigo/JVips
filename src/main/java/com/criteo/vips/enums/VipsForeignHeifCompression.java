@@ -16,16 +16,19 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The compression format to use inside a HEIF container. This is assumed
+ * to use the same numbering as `heif_compression_format`.
+ */
 public enum VipsForeignHeifCompression {
-    // x265
+    /** x265 */
     Hevc(1),
-    // x264
+    /** x264 */
     Avc(2),
-    // jpeg
+    /** jpeg */
     Jpeg(3),
-    // aom
-    Av1(4),
-    Last(5);
+    /** aom */
+    Av1(4);
 
     private int value;
     private static Map map = new HashMap<VipsForeignHeifCompression, Integer>();

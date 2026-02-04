@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.complex]. */
 public enum VipsOperationComplex {
-    // convert to polar coordinates
+    /** convert to polar coordinates */
     Polar(0),
-    // convert to rectangular coordinates
+    /** convert to rectangular coordinates */
     Rect(1),
-    // complex conjugate
-    Conj(2),
-    Last(3);
+    /** complex conjugate */
+    Conj(2);
 
     private int value;
     private static Map map = new HashMap<VipsOperationComplex, Integer>();

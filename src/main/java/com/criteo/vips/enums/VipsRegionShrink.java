@@ -16,20 +16,26 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * How to calculate the output pixels when shrinking a 2x2 region. Images
+ * with alpha (see [method@Image.hasalpha]) always shrink with
+ * [enum@Vips.RegionShrink.MEAN] and pixels scaled by alpha to avoid
+ * fringing. Set the image interpretation to
+ * [enum@Vips.Interpretation.MULTIBAND] to treat all bands equally.
+ */
 public enum VipsRegionShrink {
-    // use the average
+    /** use the average */
     Mean(0),
-    // use the median
+    /** use the median */
     Median(1),
-    // use the mode
+    /** use the mode */
     Mode(2),
-    // use the maximum
+    /** use the maximum */
     Max(3),
-    // use the minimum
+    /** use the minimum */
     Min(4),
-    // use the top-left pixel
-    Nearest(5),
-    Last(6);
+    /** use the top-left pixel */
+    Nearest(5);
 
     private int value;
     private static Map map = new HashMap<VipsRegionShrink, Integer>();

@@ -16,16 +16,17 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public enum VipsImageType {
-    Error(-1),
-    None(0),
-    Setbuf(1),
-    SetbufForeign(2),
-    Openin(3),
-    Mmapin(4),
-    Mmapinrw(5),
-    Openout(6),
-    Partial(7);
+    ImageError(-1),
+    ImageNone(0),
+    ImageSetbuf(1),
+    ImageSetbufForeign(2),
+    ImageOpenin(3),
+    ImageMmapin(4),
+    ImageMmapinrw(5),
+    ImageOpenout(6),
+    ImagePartial(7);
 
     private int value;
     private static Map map = new HashMap<VipsImageType, Integer>();

@@ -16,12 +16,16 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * See [method@Image.draw_image] and so on. Operations like
+ * [method@Image.draw_image] need to be told how to combine images from
+ * two sources. ::: seealso [method@Image.join].
+ */
 public enum VipsCombineMode {
-    // set pixels to the new value
+    /** set pixels to the new value */
     Set(0),
-    // add pixels
-    Add(1),
-    Last(2);
+    /** add pixels */
+    Add(1);
 
     private int value;
     private static Map map = new HashMap<VipsCombineMode, Integer>();

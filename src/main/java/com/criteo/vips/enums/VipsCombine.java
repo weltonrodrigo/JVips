@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** How to combine values. See [method@Image.compass], for example. */
 public enum VipsCombine {
-    // take the maximum of the possible values
+    /** take the maximum of the possible values */
     Max(0),
-    // sum all the values
+    /** sum all the values */
     Sum(1),
-    // take the minimum value
-    Min(2),
-    Last(3);
+    /** take the minimum value */
+    Min(2);
 
     private int value;
     private static Map map = new HashMap<VipsCombine, Integer>();

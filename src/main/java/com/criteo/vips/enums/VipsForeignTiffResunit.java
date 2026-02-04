@@ -16,12 +16,12 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Use inches or centimeters as the resolution unit for a tiff file. */
 public enum VipsForeignTiffResunit {
-    // use centimeters
+    /** use centimeters */
     Cm(0),
-    // use inches
-    Inch(1),
-    Last(2);
+    /** use inches */
+    Inch(1);
 
     private int value;
     private static Map map = new HashMap<VipsForeignTiffResunit, Integer>();

@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** Set subsampling mode. */
 public enum VipsForeignSubsample {
-    // prevent subsampling when quality >= 90
+    /** prevent subsampling when quality >= 90 */
     Auto(0),
-    // always perform subsampling
+    /** always perform subsampling */
     On(1),
-    // never perform subsampling
-    Off(2),
-    Last(3);
+    /** never perform subsampling */
+    Off(2);
 
     private int value;
     private static Map map = new HashMap<VipsForeignSubsample, Integer>();

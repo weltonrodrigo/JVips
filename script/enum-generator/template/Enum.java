@@ -5,6 +5,7 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+$enum_javadoc
 public enum $name {
 $values;
 

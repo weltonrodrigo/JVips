@@ -16,14 +16,11 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public enum VipsForeignJpegSubsample {
-    // default preset
     Auto(0),
-    // always perform subsampling
     On(1),
-    // never perform subsampling
-    Off(2),
-    Last(3);
+    Off(2);
 
     private int value;
     private static Map map = new HashMap<VipsForeignJpegSubsample, Integer>();

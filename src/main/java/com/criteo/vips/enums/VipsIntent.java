@@ -16,16 +16,22 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The rendering intent. [enum@Vips.Intent.ABSOLUTE] is best for
+ * scientific work, [enum@Vips.Intent.RELATIVE] is usually best for
+ * accurate communication with other imaging libraries.
+ */
 public enum VipsIntent {
-    // perceptual rendering intent
+    /** perceptual rendering intent */
     Perceptual(0),
-    // relative colorimetric rendering intent
+    /** relative colorimetric rendering intent */
     Relative(1),
-    // saturation rendering intent
+    /** saturation rendering intent */
     Saturation(2),
-    // absolute colorimetric rendering intent
+    /** absolute colorimetric rendering intent */
     Absolute(3),
-    Last(4);
+    /** the rendering intent that the profile suggests */
+    Auto(32);
 
     private int value;
     private static Map map = new HashMap<VipsIntent, Integer>();

@@ -16,45 +16,32 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A direction on a compass. Used for [method@Image.gravity], for
- * example.
- */
-public enum VipsCompassDirection {
-    /** centre */
-    Centre(0),
-    /** north */
-    North(1),
-    /** east */
-    East(2),
-    /** south */
-    South(3),
-    /** west */
-    West(4),
-    /** north-east */
-    NorthEast(5),
-    /** south-east */
-    SouthEast(6),
-    /** south-west */
-    SouthWest(7),
-    /** north-west */
-    NorthWest(8);
+/** The SDF to generate, ::: seealso [ctor@Image.sdf]. */
+public enum VipsSdfShape {
+    /** a circle at @a, radius @r */
+    Circle(0),
+    /** a box from @a to @b */
+    Box(1),
+    /** a box with rounded @corners from @a to @b */
+    RoundedBox(2),
+    /** a line from @a to @b */
+    Line(3);
 
     private int value;
-    private static Map map = new HashMap<VipsCompassDirection, Integer>();
+    private static Map map = new HashMap<VipsSdfShape, Integer>();
 
-    private VipsCompassDirection(int i) {
+    private VipsSdfShape(int i) {
       value = i;
     }
 
     static {
-        for (VipsCompassDirection e : VipsCompassDirection.values()) {
+        for (VipsSdfShape e : VipsSdfShape.values()) {
             map.put(e.value, e);
         }
     }
 
-    public static VipsCompassDirection valueOf(int i) {
-        return (VipsCompassDirection) map.get(i);
+    public static VipsSdfShape valueOf(int i) {
+        return (VipsSdfShape) map.get(i);
     }
 
     public int getValue() {

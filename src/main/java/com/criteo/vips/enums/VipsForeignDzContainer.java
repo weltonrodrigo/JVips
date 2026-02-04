@@ -16,14 +16,14 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** What container format to use. */
 public enum VipsForeignDzContainer {
-    // write tiles to the filesystem
+    /** write tiles to the filesystem */
     Fs(0),
-    // write tiles to a zip file
+    /** write tiles to a zip file */
     Zip(1),
-    // write to a szi file
-    Szi(2),
-    Last(3);
+    /** write to a szi file */
+    Szi(2);
 
     private int value;
     private static Map map = new HashMap<VipsForeignDzContainer, Integer>();

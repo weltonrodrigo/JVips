@@ -16,10 +16,10 @@ package com.criteo.vips.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+/** See also: [method@Image.complex2]. */
 public enum VipsOperationComplex2 {
-    // convert to polar coordinates
-    CrossPhase(0),
-    Last(1);
+    /** convert to polar coordinates */
+    CrossPhase(0);
 
     private int value;
     private static Map map = new HashMap<VipsOperationComplex2, Integer>();
