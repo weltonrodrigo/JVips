@@ -14,6 +14,7 @@ target/
 script/enum-generator/vips-*
 script/enum-generator/enums
 script/enum-generator/test
+script/enum-generator/.venv/
 
 ### Maven ###
 target/

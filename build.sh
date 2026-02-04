@@ -71,8 +71,10 @@ VERSION="${VIPS_VERSION}-$(git rev-parse --short HEAD)"
 
 (
     cd script/enum-generator
-    ${PIP_BIN} install --user -r requirements.txt
-    ${PYTHON_BIN} EnumGenerator.py "${VIPS_VERSION}"
+    ${PYTHON_BIN} -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    python EnumGenerator.py "${VIPS_VERSION}"
 )
 
 ##########################
