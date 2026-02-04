@@ -30,11 +30,14 @@ RUN yum install -y epel-release && \
     java-11-openjdk java-11-openjdk-devel \
     && yum clean all
 
-# Install meson and ninja using one of the pre-installed Python interpreters
-# (manylinux2014 has Python in /opt/python/, not in the default system PATH)
-RUN /opt/python/cp310-cp310/bin/pip install meson ninja && \
-    ln -s /opt/python/cp310-cp310/bin/meson /usr/local/bin/meson && \
-    ln -s /opt/python/cp310-cp310/bin/ninja /usr/local/bin/ninja
+# manylinux2014 has Python 3 in /opt/python/, not in the system PATH.
+# Symlink python3/pip3 so build.sh and EnumGenerator can find them.
+RUN ln -s /opt/python/cp310-cp310/bin/python3 /usr/local/bin/python3 && \
+    ln -s /opt/python/cp310-cp310/bin/pip /usr/local/bin/pip3 && \
+    ln -s /opt/python/cp310-cp310/bin/pip /usr/local/bin/pip
+
+# Install meson and ninja
+RUN pip3 install meson ninja
 
 # Install Maven (not in CentOS 7 repos for aarch64)
 ARG MAVEN_VERSION=3.9.6
