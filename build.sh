@@ -6,6 +6,7 @@ set -x
 BASEDIR="$(pwd)"
 
 BUILD_LINUX=1
+BUILD_LINUX_AARCH64=0
 BUILD_WIN64=0
 BUILD_MACOS=0
 DIST=0
@@ -20,9 +21,11 @@ while true; do
   case "$1" in
     --with-w64 ) BUILD_WIN64=1; shift;;
     --with-linux ) BUILD_LINUX=1; shift;;
+    --with-linux-aarch64 ) BUILD_LINUX_AARCH64=1; shift;;
     --with-macos ) BUILD_MACOS=1; shift;;
     --without-w64 ) BUILD_WIN64=0; shift;;
     --without-linux ) BUILD_LINUX=0; shift;;
+    --without-linux-aarch64 ) BUILD_LINUX_AARCH64=0; shift;;
     --without-macos ) BUILD_MACOS=0; shift;;
     --skip-test ) RUN_TEST=0; shift;;
     --run-benchmark ) RUN_BENCHMARK=1; shift;;
@@ -98,15 +101,63 @@ if [ ${BUILD_LINUX} -gt 0 ]; then
     popd
 
     LIBS="JVips/src/main/c/libJVips.so"
-    
+
     if [ ${RUN_TEST} -gt 0 ]; then
         LIBS+=" JVips/src/test/c/libJVipsTest.so"
     fi
 
+    # Create architecture-specific directory for x86_64 libraries
+    mkdir -p "${BUILDDIR}"/all/linux-amd64/
+    for LIB in $LIBS; do
+        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/linux-amd64/
+    done
+    cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}"/all/linux-amd64/
+
+    # Also copy to root for backwards compatibility
     for LIB in $LIBS; do
         cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/
     done
     cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}"/all/
+
+fi
+
+##################################
+###### Build Linux ARM64 #########
+##################################
+
+if [ ${BUILD_LINUX_AARCH64} -gt 0 ]; then
+    export CC=gcc
+    export CXX=g++
+    export CPP=cpp
+    export RANLIB=ranlib
+    export HOST="--host=aarch64-linux-gnu"
+    export TARGET=linux-aarch64
+    export PREFIX="${BUILDDIR}/${TARGET}"/inst/
+    export TOOLCHAIN="${BASEDIR}"/Toolchain-linux-aarch64.cmake
+    export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
+
+    mkdir -p "${BUILDDIR}/${TARGET}"/JVips
+    rm -rf "${BUILDDIR}/${TARGET}"/JVips/*
+    pushd "${BUILDDIR}/${TARGET}"/JVips
+    ${CMAKE_BIN} "${BASEDIR}" -DWITH_LIBHEIF=ON -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    make -j ${JOBS} || {
+        echo "Linux ARM64 JVips build failed"
+        exit 1
+    }
+    popd
+
+    LIBS="JVips/src/main/c/libJVips.so"
+
+    if [ ${RUN_TEST} -gt 0 ]; then
+        LIBS+=" JVips/src/test/c/libJVipsTest.so"
+    fi
+
+    # Create architecture-specific directory for ARM64 libraries
+    mkdir -p "${BUILDDIR}"/all/linux-aarch64/
+    for LIB in $LIBS; do
+        cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/linux-aarch64/
+    done
+    cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}"/all/linux-aarch64/
 
 fi
 

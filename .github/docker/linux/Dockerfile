@@ -1,4 +1,4 @@
-FROM centos:7.2.1511
+FROM centos:7
 
 # Set default build arguments.
 ARG NODE_VERSION=10.x
@@ -10,12 +10,19 @@ ARG GID=1000
 
 # Set default environment variables.
 ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
-ENV PATH="${OSX_CROSS_HOME}/bin:${PATH}"
+ENV PATH="${PATH}"
 ENV YUM_OPTIONS="-y --setopt=skip_missing_names_on_install=False"
 
-RUN yum install ${YUM_OPTIONS} \
-    centos-release-scl \
-    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+# Fix CentOS 7 EOL mirrors - use vault archive
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
+
+RUN yum install ${YUM_OPTIONS} centos-release-scl epel-release
+
+# Fix SCL repo for EOL as well
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
+    sed -i 's|# baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-SCLo-*.repo
 
 # Install system dependencies.
 RUN yum install ${YUM_OPTIONS} \

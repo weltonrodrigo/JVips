@@ -12,28 +12,18 @@ set(JAVA_SOURCE_FILES
     "${JAVA_SOURCE_DIRECTORY}/VipsImage.java")
 file(GLOB JAVA_ENUM_SOURCE_FILES "${JAVA_SOURCE_DIRECTORY}/enums/*.java")
 
-add_jar(JVipsWrapper ${JAVA_ENUM_SOURCE_FILES} ${JAVA_SOURCE_FILES})
+# Use GENERATE_NATIVE_HEADERS for Java 8+ (replaces deprecated create_javah)
+add_jar(JVipsWrapper
+    ${JAVA_ENUM_SOURCE_FILES}
+    ${JAVA_SOURCE_FILES}
+    GENERATE_NATIVE_HEADERS jvips_native_headers
+    DESTINATION ${JNI_HEADER_DIRECTORY})
 
-file(REMOVE ${JNI_HEADER_DIRECTORY}/Vips.h
-            ${JNI_HEADER_DIRECTORY}/VipsContext.h
-            ${JNI_HEADER_DIRECTORY}/VipsImage.h)
-
-create_javah(TARGET Vips_header
-             CLASSES com.criteo.vips.Vips
-             CLASSPATH JVipsWrapper
-             OUTPUT_NAME ${JNI_HEADER_DIRECTORY}/Vips.h)
-create_javah(TARGET VipsContext_header
-             CLASSES com.criteo.vips.VipsContext
-             CLASSPATH JVipsWrapper
-             OUTPUT_NAME ${JNI_HEADER_DIRECTORY}/VipsContext.h)
-create_javah(TARGET VipsImage_header
-             CLASSES com.criteo.vips.VipsImage
-             CLASSPATH JVipsWrapper
-             OUTPUT_NAME ${JNI_HEADER_DIRECTORY}/VipsImage.h)
-create_javah(TARGET Max1Result_header
-             CLASSES com.criteo.vips.Max1Result
-             CLASSPATH JVipsWrapper
-             OUTPUT_NAME ${JNI_HEADER_DIRECTORY}/Max1Result.h)
+# Create custom target for header dependencies
+add_custom_target(Vips_header DEPENDS jvips_native_headers)
+add_custom_target(VipsContext_header DEPENDS jvips_native_headers)
+add_custom_target(VipsImage_header DEPENDS jvips_native_headers)
+add_custom_target(Max1Result_header DEPENDS jvips_native_headers)
 
 if(NOT ${BUILD_TARGET} STREQUAL "macOS")
     add_dependencies(Vips_header libvips)

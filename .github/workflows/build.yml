@@ -9,10 +9,10 @@ on:
 jobs:
   build_for_linux:
     runs-on: ubuntu-latest
-    name: Build for Linux
+    name: Build for Linux (x86_64)
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Cache Docker layers
         uses: satackey/action-docker-layer-caching@v0.0.8
@@ -30,9 +30,44 @@ jobs:
         run: docker run --rm -e CI -v $(pwd):/app -w /app builder
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jvips-libs-linux
+          path: JVips-libs.tar.gz
+
+  build_for_linux_aarch64:
+    runs-on: ubuntu-latest
+    name: Build for Linux (ARM64)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: satackey/action-docker-layer-caching@v0.0.8
+        with:
+          key: docker-layers-linux-aarch64-{hash}
+          restore-keys: |
+            docker-layers-linux-aarch64-
+        continue-on-error: true
+
+      - name: Build Docker builder image
+        run: docker buildx build --platform linux/arm64 --load --build-arg UID=$(id -u) --build-arg GID=$(id -g) -f .github/docker/linux-aarch64/Dockerfile -t builder-aarch64 .
+
+      - name: Build
+        run: docker run --rm --platform linux/arm64 -e CI -v $(pwd):/app -w /app builder-aarch64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvips-libs-linux-aarch64
           path: JVips-libs.tar.gz
 
   build_for_windows:
@@ -40,7 +75,7 @@ jobs:
     name: Build for Windows
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build Docker builder image
         run: docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -f .github/docker/windows/Dockerfile -t builder .
@@ -49,7 +84,7 @@ jobs:
         run: docker run --rm -e CI -v $(pwd):/app -w /app builder
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jvips-libs-windows
           path: JVips-libs.tar.gz
@@ -59,35 +94,35 @@ jobs:
     name: Build for macOS
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Select Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: "1.8.0"
-          java-package: jdk
+          java-version: "11"
+          distribution: "temurin"
           architecture: x64
 
       - name: Install vips
         run: ./setup-for-macos.sh
 
       - name: Build
-        run: ./build.sh --with-macos --without-w64 --without-linux
+        run: ./build.sh --with-macos --without-w64 --without-linux --without-linux-aarch64
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jvips-libs-macos
           path: JVips-libs.tar.gz
 
   release:
-    needs: [build_for_linux, build_for_macos, build_for_windows]
+    needs: [build_for_linux, build_for_linux_aarch64, build_for_macos, build_for_windows]
     if: contains('refs/heads/master', github.ref)
     runs-on: ubuntu-latest
     name: Merge macOS, Linux, Windows artifacts into a JAR and release it
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Read GPG private key
         run: echo -ne "$GPG_PRIVATE_KEY" | base64 --decode > $RUNNER_TEMP/key.asc
@@ -95,7 +130,7 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.MAVEN_SECRING_GPG_BASE64 }}
 
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
@@ -108,20 +143,18 @@ jobs:
           source lib/VERSIONS
           VERSION="${VIPS_VERSION}-$(git rev-parse --short HEAD)"
           mvn -B versions:set -DnewVersion=$VERSION
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Maven Central Repository
-        uses: warrenseine/setup-java@v1
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        uses: actions/setup-java@v4
         with:
-          java-version: "1.8.0"
-          java-package: jdk
+          java-version: "11"
+          distribution: "temurin"
           architecture: x64
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-          gpg-private-key-path: ${{ runner.temp }}/key.asc
+          gpg-private-key: ${{ secrets.MAVEN_SECRING_GPG_BASE64 }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Clean GPG private key
@@ -135,13 +168,8 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_SECRING_PASSWORD }}
 
-      # - name: Publish to GitHub Packages
-      #   run: mvn -B -DskipTests -P deploy deploy
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jvips
           path: JVips.jar
@@ -160,7 +188,6 @@ jobs:
       - name: Upload release asset
         uses: actions/upload-release-asset@v1
         env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release.outputs.upload_url }}

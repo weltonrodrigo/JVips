@@ -14,11 +14,18 @@ endforeach()
 
 set(VIPS_VERSION ${VIPS_VERSION} PARENT_SCOPE)
 
-# Set the host target
+# Set the host target and architecture-specific flags
 if (NOT DEFINED BUILD_TARGET)
   set(CONFIGURE_HOST "--host=x86_64-pc-linux")
+  set(IS_ARM64 FALSE)
 elseif(${BUILD_TARGET} STREQUAL "w64")
   set(CONFIGURE_HOST "--host=x86_64-w64-mingw32")
+  set(IS_ARM64 FALSE)
+elseif(${BUILD_TARGET} STREQUAL "linux-aarch64")
+  set(CONFIGURE_HOST "--host=aarch64-linux-gnu")
+  set(IS_ARM64 TRUE)
+else()
+  set(IS_ARM64 FALSE)
 endif()
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
@@ -49,17 +56,23 @@ list(APPEND CONFIGURE_VARS
 find_library(LIBIMAGEQUANT imagequant PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if (NOT LIBIMAGEQUANT)
     # https://github.com/ImageOptim/libimagequant/issues/36
-    if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 AND ${BUILD_TARGET} STREQUAL "linux")
+    if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_C_COMPILER_VERSION VERSION_GREATER 7.0 AND (${BUILD_TARGET} STREQUAL "linux" OR ${BUILD_TARGET} STREQUAL "linux-aarch64"))
         set(LIQ_OPENMP "--with-openmp")
     else()
         set(LIQ_OPENMP "--without-openmp")
+    endif()
+    # Use NEON for ARM64, SSE for x86_64
+    if (IS_ARM64)
+        set(LIQ_SIMD "")
+    else()
+        set(LIQ_SIMD "--with-sse")
     endif()
     ExternalProject_Add(libimagequant
       URL "https://github.com/ImageOptim/libimagequant/archive/${LIQ_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libimagequant"
       CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${CONFIGURE_CFLAGS}
       --prefix=${EXT_INSTALL_DIR}
-      --with-sse
+      ${LIQ_SIMD}
       ${LIQ_OPENMP}
       BUILD_IN_SOURCE 1
       )
@@ -159,7 +172,7 @@ endif()
 find_library(LIBPNG png PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT LIBPNG)
     ExternalProject_Add(libpng
-      URL "https://downloads.sourceforge.net/project/libpng/libpng16/${PNG_VERSION}/libpng-${PNG_VERSION}.tar.gz"
+      URL "https://github.com/glennrp/libpng/archive/refs/tags/v${PNG_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libpng"
       CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/libpng/src/libpng/configure
       ${CONFIGURE_VARS}
@@ -176,7 +189,7 @@ find_library(GIFLIB gif PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if (NOT GIFLIB)
     # giflib hasn't a standard build system, don't append CONFIGURE_VARS
     ExternalProject_Add(giflib
-      URL "https://downloads.sourceforge.net/project/giflib/giflib-${GIF_VERSION}.tar.gz"
+      URL "https://sourceforge.net/projects/giflib/files/giflib-${GIF_VERSION}.tar.gz/download"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/giflib"
       PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/patches/giflib-cmake.patch
       CMAKE_ARGS
@@ -193,6 +206,18 @@ endif()
 
 find_library(LIBWEBP webp webpmux webpdemux PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT LIBWEBP)
+    # Architecture-specific SIMD options for libwebp
+    if (IS_ARM64)
+        set(WEBP_SIMD_FLAGS
+          --enable-neon
+        )
+    else()
+        set(WEBP_SIMD_FLAGS
+          --enable-avx2
+          --enable-sse4.1
+          --enable-sse2
+        )
+    endif()
     ExternalProject_Add(libwebp
       URL "http://downloads.webmproject.org/releases/webp/libwebp-${WEBP_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libwebp"
@@ -212,9 +237,7 @@ if(NOT LIBWEBP)
       --enable-libwebpmux
       --without-orc
       --disable-assert
-      --enable-avx2
-      --enable-sse4.1
-      --enable-sse2
+      ${WEBP_SIMD_FLAGS}
       --enable-threading
       DEPENDS libjpeg libpng giflib tiff
       )

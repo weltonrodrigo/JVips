@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 public class Vips {
     private static final Logger LOGGER = Logger.getLogger("com.criteo.vips.Vips");
     private static final String SYSTEM_NAME = System.getProperty("os.name").toLowerCase();
+    private static final String SYSTEM_ARCH = System.getProperty("os.arch").toLowerCase();
 
     private static final String[] LINUX_LIBRARIES = {
             "aom",
@@ -91,14 +92,60 @@ public class Vips {
         return (SYSTEM_NAME.indexOf("mac") >= 0);
     }
 
+    private static boolean isLinux() {
+        return SYSTEM_NAME.indexOf("linux") >= 0 || SYSTEM_NAME.indexOf("nix") >= 0;
+    }
+
+    private static boolean isAarch64() {
+        return SYSTEM_ARCH.equals("aarch64") || SYSTEM_ARCH.equals("arm64");
+    }
+
+    private static boolean isAmd64() {
+        return SYSTEM_ARCH.equals("amd64") || SYSTEM_ARCH.equals("x86_64");
+    }
+
+    /**
+     * Get the architecture-specific resource path prefix for native libraries.
+     * On Linux, libraries are stored in subdirectories based on architecture.
+     * @return the resource path prefix (e.g., "linux-aarch64/" or "linux-amd64/" or "")
+     */
+    private static String getArchResourcePrefix() {
+        if (isLinux()) {
+            if (isAarch64()) {
+                return "linux-aarch64/";
+            } else if (isAmd64()) {
+                return "linux-amd64/";
+            }
+        }
+        return "";
+    }
+
     private static void loadLibraryFromJar(String name) throws IOException {
         String libName = System.mapLibraryName(name);
+        String archPrefix = getArchResourcePrefix();
         File temp;
-        try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(libName)) {
-            if (in == null) {
-                LOGGER.warning("Could not load lib '" + libName + "' via classloader");
-                return;
+
+        // Try architecture-specific path first, then fall back to root
+        String[] pathsToTry = archPrefix.isEmpty()
+            ? new String[]{libName}
+            : new String[]{archPrefix + libName, libName};
+
+        InputStream in = null;
+        for (String path : pathsToTry) {
+            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+            if (in != null) {
+                LOGGER.fine("Found library at: " + path);
+                break;
             }
+        }
+
+        if (in == null) {
+            LOGGER.warning("Could not load lib '" + libName + "' via classloader (tried paths: " +
+                String.join(", ", pathsToTry) + ")");
+            return;
+        }
+
+        try {
             byte[] buffer = new byte[1024];
             int read;
             temp = File.createTempFile(libName, "");
@@ -108,6 +155,8 @@ public class Vips {
                     fos.write(buffer, 0, read);
                 }
             }
+        } finally {
+            in.close();
         }
         System.load(temp.getAbsolutePath());
     }

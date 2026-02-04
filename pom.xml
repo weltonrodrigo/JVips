@@ -73,6 +73,28 @@
                             <exclude>libJVipsTest.so</exclude>
                             <exclude>JVipsTest.dll</exclude>
                             <exclude>libJVipsTest.dylib</exclude>
+                            <exclude>linux-amd64/**</exclude>
+                            <exclude>linux-aarch64/**</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>${project.basedir}/build/all/linux-amd64/</directory>
+                        <targetPath>linux-amd64</targetPath>
+                        <includes>
+                            <include>*.so</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.so</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>${project.basedir}/build/all/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>*.so</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.so</exclude>
                         </excludes>
                     </resource>
                 </resources>
@@ -84,6 +106,20 @@
                             <include>libJVipsTest.so</include>
                             <include>JVipsTest.dll</include>
                             <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/all/linux-amd64/</directory>
+                        <targetPath>linux-amd64</targetPath>
+                        <includes>
+                            <include>libJVipsTest.so</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/all/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>libJVipsTest.so</include>
                         </includes>
                     </testResource>
 
@@ -203,6 +239,28 @@
                             <exclude>libJVipsTest.so</exclude>
                             <exclude>JVipsTest.dll</exclude>
                             <exclude>libJVipsTest.dylib</exclude>
+                            <exclude>linux-amd64/**</exclude>
+                            <exclude>linux-aarch64/**</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>${project.basedir}/build/all/linux-amd64/</directory>
+                        <targetPath>linux-amd64</targetPath>
+                        <includes>
+                            <include>*.so</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.so</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>${project.basedir}/build/all/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>*.so</include>
+                        </includes>
+                        <excludes>
+                            <exclude>libJVipsTest.so</exclude>
                         </excludes>
                     </resource>
                 </resources>
@@ -214,6 +272,20 @@
                             <include>libJVipsTest.so</include>
                             <include>JVipsTest.dll</include>
                             <include>libJVipsTest.dylib</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/all/linux-amd64/</directory>
+                        <targetPath>linux-amd64</targetPath>
+                        <includes>
+                            <include>libJVipsTest.so</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${project.basedir}/build/all/linux-aarch64/</directory>
+                        <targetPath>linux-aarch64</targetPath>
+                        <includes>
+                            <include>libJVipsTest.so</include>
                         </includes>
                     </testResource>
 

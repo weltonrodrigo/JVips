@@ -3,12 +3,15 @@ set(JNI_TEST_HEADER_DIRECTORY "${PROJECT_SOURCE_DIR}/src/test/c/")
 set(JAVA_TEST_SOURCE_FILES "${JAVA_TEST_SOURCE_DIRECTORY}/VipsEnumTest.java")
 set(JUNIT_HOME "${PROJECT_SOURCE_DIR}/build/artifacts/junit-4.13.1.jar")
 
-add_jar(JVipsTestWrapper ${JAVA_TEST_SOURCE_FILES} "${PROJECT_SOURCE_DIR}/src/main/java/com/criteo/vips//VipsException.java" INCLUDE_JARS ${JVipsWrapper} ${JUNIT_HOME})
+# Use GENERATE_NATIVE_HEADERS for Java 8+ (replaces deprecated create_javah)
+add_jar(JVipsTestWrapper
+    ${JAVA_TEST_SOURCE_FILES}
+    "${PROJECT_SOURCE_DIR}/src/main/java/com/criteo/vips//VipsException.java"
+    INCLUDE_JARS ${JVipsWrapper} ${JUNIT_HOME}
+    GENERATE_NATIVE_HEADERS jvips_test_native_headers
+    DESTINATION ${JNI_TEST_HEADER_DIRECTORY})
+
 add_dependencies(JVipsTestWrapper JVipsWrapper)
 
-file(REMOVE ${JNI_TEST_HEADER_DIRECTORY}/VipsEnumTest.h)
-
-create_javah(TARGET VipsEnumTest_header
-             CLASSES com.criteo.vips.VipsEnumTest
-             CLASSPATH JVipsTestWrapper
-             OUTPUT_NAME ${JNI_TEST_HEADER_DIRECTORY}/VipsEnumTest.h)
+# Create custom target for header dependency
+add_custom_target(VipsEnumTest_header DEPENDS jvips_test_native_headers)

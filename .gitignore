@@ -43,3 +43,10 @@ _deps
 *-prefix/
 
 # End of https://www.toptal.com/developers/gitignore/api/cmake
+
+# Generated JNI headers
+src/main/c/com_criteo_vips_*.h
+src/test/c/com_criteo_vips_*.h
+
+# Claude Code
+.claude/
