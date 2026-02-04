@@ -101,7 +101,6 @@ jobs:
         with:
           java-version: "11"
           distribution: "temurin"
-          architecture: x64
 
       - name: Install vips
         run: ./setup-for-macos.sh
