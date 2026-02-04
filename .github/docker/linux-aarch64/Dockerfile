@@ -55,4 +55,4 @@ RUN useradd -l -m -u $UID -g $GID -o -s /bin/bash -d /home/$UNAME $UNAME || true
 
 USER $UNAME
 
-CMD bash -l -ex build.sh --with-linux-aarch64 --without-linux --without-w64 --without-macos --skip-test
+CMD bash -l -ex build.sh --with-linux-aarch64 --without-linux --without-w64 --without-macos
