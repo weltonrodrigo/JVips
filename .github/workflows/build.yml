@@ -106,7 +106,7 @@ jobs:
         run: ./setup-for-macos.sh
 
       - name: Build
-        run: ./build.sh --with-macos --without-w64 --without-linux --without-linux-aarch64 --skip-test
+        run: ./build.sh --with-macos --without-w64 --without-linux --without-linux-aarch64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
