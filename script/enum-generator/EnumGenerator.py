@@ -250,9 +250,12 @@ def main():
         
         try:
             tarball = wget.download(url_xz)
-        except Exception:
-            # Fall back to .tar.gz for older versions
-            tarball = wget.download(url_gz)
+        except (Exception) as e:
+            # Fall back to .tar.gz for older versions (8.12.2 and earlier)
+            if '404' in str(e):
+                tarball = wget.download(url_gz)
+            else:
+                raise
         
         with tarfile.open(tarball) as tf:
             tf.extractall()
