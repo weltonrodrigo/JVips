@@ -8,7 +8,7 @@ EXIF_VERSION=0.6.24
 JPG_VERSION=2.0.5
 
 # renovate: datasource=git-tags depName=libpng packageName=https://git.code.sf.net/p/libpng/code
-PNG_VERSION=1.6.37
+PNG_VERSION=1.6.43
 
 # renovate: datasource=github-releases depName=libspng packageName=randy408/libspng
 SPNG_VERSION=0.6.0

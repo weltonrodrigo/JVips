@@ -294,6 +294,7 @@ if(NOT VIPS)
         CPPFLAGS=-I${EXT_INSTALL_DIR}/include
         meson setup
         --prefix=${EXT_INSTALL_DIR}
+        --libdir=lib
         --buildtype=release
         --default-library=shared
         -Dintrospection=enabled

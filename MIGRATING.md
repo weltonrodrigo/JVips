@@ -119,10 +119,15 @@ The GIR file is XML with this structure:
 - [x] Restore `VipsImageFormat.java` (manually maintained)
 - [x] Validate macOS build passes all tests
 
-### Phase 2: Linux x86_64 Build (In Progress)
-- [ ] Validate Linux x86_64 Docker build
-- [ ] Ensure meson build works in Docker environment
-- [ ] Verify GIR file generation in Linux build
+### Phase 2: Linux x86_64 Build (Complete)
+- [x] Validate Linux x86_64 Docker build
+- [x] Ensure meson build works in Docker environment
+- [x] Verify GIR file generation in Linux build
+- [x] Fix CentOS 7 EOL mirror issues (switch to vault.centos.org)
+- [x] Install cmake3 from EPEL, meson via pip
+- [x] Handle lib64 vs lib directory difference on x86_64
+- [x] Update libpng to 1.6.43 (old 1.6.37 URL was 404)
+- [x] Remove obsolete VipsForeignJpegSubsample enum (renamed to VipsForeignSubsample)
 
 ### Phase 3: Linux arm64 Build
 - [ ] Add arm64 cross-compilation support

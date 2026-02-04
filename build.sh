@@ -135,6 +135,10 @@ if [ ${BUILD_LINUX} -gt 0 ]; then
         cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}"/all/
     done
     cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}"/all/
+    # Also copy from lib64 (meson installs some libs there on x86_64)
+    if [ -d "${BUILDDIR}/${TARGET}/inst/lib64" ]; then
+        cp "${BUILDDIR}/${TARGET}/inst/lib64/"*.so* "${BUILDDIR}"/all/ 2>/dev/null || true
+    fi
 
 fi
 
