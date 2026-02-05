@@ -162,12 +162,13 @@ if (WITH_LIBSPNG)
         ExternalProject_Add(libspng
           URL "https://github.com/randy408/libspng/archive/v${SPNG_VERSION}.tar.gz"
           PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libspng"
-          PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/patches/libspng-0.6-fixes.patch
           CMAKE_ARGS
           -DCMAKE_INSTALL_PREFIX=${EXT_INSTALL_DIR}
+          -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
           -DCMAKE_BUILD_TYPE=Release
+          -DSPNG_SHARED=ON
           -DSPNG_STATIC=OFF
-          -DENABLE_OPT=ON
+          -DBUILD_EXAMPLES=OFF
           BUILD_IN_SOURCE 1
           )
     else()

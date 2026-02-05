@@ -27,7 +27,7 @@ JOBS=8
 BUILD_TYPE=Release
 RUN_TEST=1
 RUN_BENCHMARK=0
-MAVEN_ARGS="--batch-mode"
+MAVEN_ARGS="--batch-mode -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
 
 while true; do
   case "$1" in
@@ -133,7 +133,7 @@ build_linux() {
     pushd "${BUILDDIR}/${TARGET}"/JVips
 
     # Phase 1: Build native libraries including libvips with meson (generates GIR)
-    ${CMAKE_BIN} "${BASEDIR}" -DWITH_LIBHEIF=ON -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    ${CMAKE_BIN} "${BASEDIR}" -DWITH_LIBHEIF=ON -DWITH_LIBSPNG=ON -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
 
     # Build just libvips first to generate the GIR file
     make -j ${JOBS} libvips || {
@@ -262,7 +262,7 @@ if [ ${BUILD_MACOS} -gt 0 ]; then
     mkdir -p "${BUILDDIR}/${TARGET}"/JVips
     rm -rf "${BUILDDIR}/${TARGET}"/JVips/*
     pushd "${BUILDDIR}/${TARGET}/JVips"
-    ${CMAKE_BIN} "${BASEDIR}" -DWITH_LIBHEIF=ON -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    ${CMAKE_BIN} "${BASEDIR}" -DWITH_LIBHEIF=ON -DWITH_LIBSPNG=ON -DCMAKE_TOOLCHAIN_FILE="${TOOLCHAIN}" -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
     make -j ${JOBS} || {
         echo "macOS JVips build failed"
         exit 1
