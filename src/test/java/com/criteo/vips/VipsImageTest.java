@@ -891,7 +891,10 @@ public class VipsImageTest {
 
         try (VipsImage img = new VipsImage(buffer, buffer.capacity())) {
             img.autorot();
-            assertEquals(WhitePixel, img.getPointPixelPacket(0, 0));
+            PixelPacket p = img.getPointPixelPacket(0, 0);
+            assertEquals(255.0, p.getRed(), Delta);
+            assertEquals(255.0, p.getGreen(), Delta);
+            assertEquals(255.0, p.getBlue(), Delta);
         }
     }
 
