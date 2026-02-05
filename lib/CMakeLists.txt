@@ -358,7 +358,7 @@ if(NOT VIPS)
         ${CMAKE_CURRENT_BINARY_DIR}/libvips/src/libvips
       BUILD_COMMAND meson compile -C ${LIBVIPS_BUILD_DIR}
       INSTALL_COMMAND meson install -C ${LIBVIPS_BUILD_DIR}
-      DEPENDS libjpeg libpng libspng giflib libwebp libimagequant lcms2 libheif tiff libhwy
+      DEPENDS libexif libjpeg libpng libspng giflib libwebp libimagequant lcms2 libheif tiff libhwy
       BUILD_IN_SOURCE 0
       )
 else()

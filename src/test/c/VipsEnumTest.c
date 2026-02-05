@@ -195,6 +195,10 @@ Java_com_criteo_vips_VipsEnumTest_TestNativeEnums(JNIEnv *env, jclass c)
     assertEqualsNativeEnumValue(env, VIPS_FOREIGN_HEIF_ENCODER_RAV1E, "com/criteo/vips/enums/VipsForeignHeifEncoder", "Rav1e");
     assertEqualsNativeEnumValue(env, VIPS_FOREIGN_HEIF_ENCODER_SVT, "com/criteo/vips/enums/VipsForeignHeifEncoder", "Svt");
     assertEqualsNativeEnumValue(env, VIPS_FOREIGN_HEIF_ENCODER_X265, "com/criteo/vips/enums/VipsForeignHeifEncoder", "X265");
+    // VipsForeignJpegSubsample
+    assertEqualsNativeEnumValue(env, VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO, "com/criteo/vips/enums/VipsForeignJpegSubsample", "Auto");
+    assertEqualsNativeEnumValue(env, VIPS_FOREIGN_JPEG_SUBSAMPLE_ON, "com/criteo/vips/enums/VipsForeignJpegSubsample", "On");
+    assertEqualsNativeEnumValue(env, VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF, "com/criteo/vips/enums/VipsForeignJpegSubsample", "Off");
     // VipsForeignKeep
     assertEqualsNativeEnumValue(env, VIPS_FOREIGN_KEEP_NONE, "com/criteo/vips/enums/VipsForeignKeep", "None");
     assertEqualsNativeEnumValue(env, VIPS_FOREIGN_KEEP_EXIF, "com/criteo/vips/enums/VipsForeignKeep", "Exif");

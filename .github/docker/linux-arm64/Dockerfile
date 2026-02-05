@@ -17,10 +17,8 @@ ENV YUM_OPTIONS="-y --setopt=skip_missing_names_on_install=False"
 RUN yum install ${YUM_OPTIONS} \
     wget \
     git \
-    cmake3 \
     python3 \
     python3-pip \
-    ninja-build \
     patch \
     nasm \
     autoconf \
@@ -40,15 +38,17 @@ RUN yum install ${YUM_OPTIONS} \
     glib2 glib2-devel \
     java-1.8.0-openjdk java-1.8.0-openjdk-devel
 
-# Install meson via pip (more recent version than EPEL)
-RUN pip3 install meson
+# Upgrade pip first (old pip in manylinux2014 can't install newer packages)
+# Then install meson, cmake, ninja via pip
+RUN pip3 install --upgrade pip && \
+    pip3 install meson cmake ninja
 
 # Install Maven (not available in manylinux repos)
 RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz | tar -xzf - -C /opt && \
     ln -s /opt/apache-maven-3.6.3/bin/mvn /usr/local/bin/mvn
 
-# Symlink cmake3 to cmake if not already done
-RUN if [ ! -f /usr/bin/cmake ]; then ln -s /usr/bin/cmake3 /usr/bin/cmake; fi
+# Verify cmake is available (installed via pip)
+RUN cmake --version
 
 # Switch to a non-root user
 RUN groupadd -g $GID -o $UNAME && \
