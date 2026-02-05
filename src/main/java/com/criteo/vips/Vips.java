@@ -67,6 +67,7 @@ public class Vips {
             "webpdemux",
             "imagequant",
             "lcms2",
+            "hwy",
             "vips"
     };
 

@@ -170,7 +170,7 @@ build_linux() {
     for LIB in $LIBS; do
         cp "${BUILDDIR}/${TARGET}/${LIB}" "${BUILDDIR}/${TARGET_DIR}/"
     done
-    cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so "${BUILDDIR}/${TARGET_DIR}/"
+    cp "${BUILDDIR}/${TARGET}/inst/lib/"*.so* "${BUILDDIR}/${TARGET_DIR}/"
     # Also copy from lib64 (meson installs some libs there on x86_64)
     if [ -d "${BUILDDIR}/${TARGET}/inst/lib64" ]; then
         cp "${BUILDDIR}/${TARGET}/inst/lib64/"*.so* "${BUILDDIR}/${TARGET_DIR}/" 2>/dev/null || true
