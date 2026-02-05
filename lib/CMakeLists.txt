@@ -337,6 +337,19 @@ if(NOT VIPS)
     # Build libvips using meson (required for 8.18.0+)
     # This enables introspection to generate Vips-8.0.gir for enum generation
     set(LIBVIPS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/libvips/build")
+
+    # On x86_64 Linux with old glibc (manylinux2014 = glibc 2.17), we must disable
+    # HAVE_TARGET_CLONES to avoid IFUNC crashes during g-ir-scanner introspection.
+    # The target_clones attribute generates IFUNC symbols that crash on glibc < 2.23.
+    # Performance impact is minimal since Highway SIMD is still enabled.
+    if(BUILD_TARGET MATCHES "linux" AND TARGET_ARCH STREQUAL "x86_64")
+        set(LIBVIPS_PATCH_CONFIG_COMMAND
+            sed -i "s|#define HAVE_TARGET_CLONES|/* #undef HAVE_TARGET_CLONES - disabled for glibc 2.17 */|"
+            ${LIBVIPS_BUILD_DIR}/config.h)
+    else()
+        set(LIBVIPS_PATCH_CONFIG_COMMAND ${CMAKE_COMMAND} -E echo "target_clones enabled")
+    endif()
+
     ExternalProject_Add(libvips
       URL "https://github.com/libvips/libvips/archive/v${VIPS_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libvips"
@@ -356,10 +369,20 @@ if(NOT VIPS)
         -Dcplusplus=false
         ${LIBVIPS_BUILD_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/libvips/src/libvips
-      BUILD_COMMAND meson compile -C ${LIBVIPS_BUILD_DIR}
+      BUILD_COMMAND ${CMAKE_COMMAND} -E env
+        LD_LIBRARY_PATH=${EXT_INSTALL_DIR}/lib:${LIBVIPS_BUILD_DIR}/libvips:$ENV{LD_LIBRARY_PATH}
+        meson compile -C ${LIBVIPS_BUILD_DIR}
       INSTALL_COMMAND meson install -C ${LIBVIPS_BUILD_DIR}
       DEPENDS libexif libjpeg libpng libspng giflib libwebp libimagequant lcms2 libheif tiff libhwy
       BUILD_IN_SOURCE 0
+      )
+
+    # Patch config.h after configure to disable HAVE_TARGET_CLONES on x86_64 Linux
+    ExternalProject_Add_Step(libvips patch_config
+      COMMAND ${LIBVIPS_PATCH_CONFIG_COMMAND}
+      DEPENDEES configure
+      DEPENDERS build
+      COMMENT "Patching libvips config.h for glibc compatibility"
       )
 else()
     add_custom_target(libvips "")

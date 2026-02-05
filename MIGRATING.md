@@ -142,6 +142,28 @@ The GIR file is XML with this structure:
 - [ ] Windows build may need adjustment (GIR generation untested on MinGW)
 - [ ] The meson build doesn't pass all the old autotools options (like `--with-jpeg-includes`) - these are auto-detected via pkg-config
 
+## Platform-Specific Fixes
+
+### x86_64 Linux: HAVE_TARGET_CLONES Disabled
+
+On x86_64 Linux with manylinux2014 (glibc 2.17), we disable the `HAVE_TARGET_CLONES`
+compiler feature in libvips. This is necessary because:
+
+1. libvips 8.18.0 uses `__attribute__((target_clones(...)))` to generate IFUNC symbols
+   for runtime CPU dispatch (selecting AVX2/SSE versions at load time)
+2. The IFUNC resolver crashes with SIGSEGV on glibc < 2.23 during `_dl_relocate_object`
+3. This causes `g-ir-scanner` to fail when generating the GIR file
+
+**Affected functions:** `vips_XYZ2Lab_line`, `vips_premultiply_gen`, `vips_unpremultiply_gen`
+
+**Performance impact:** Minimal. Highway SIMD library is still enabled and handles most
+performance-critical code paths. The baseline SSE2 version is used for the 3 affected functions.
+
+**Fix location:** `lib/CMakeLists.txt` patches `config.h` after meson configure to
+comment out `#define HAVE_TARGET_CLONES` on x86_64 Linux builds.
+
+**Not affected:** arm64 Linux and macOS builds retain full `target_clones` support.
+
 ## References
 
 - [libvips meson migration](https://github.com/libvips/libvips/blob/master/meson.build)

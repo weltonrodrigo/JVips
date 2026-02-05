@@ -1,4 +1,7 @@
-FROM centos:7
+# Linux x86 and arm64 (aarch64) build container for JVips
+# Uses manylinux2014 which provides CentOS 7 arm64 and x86 with glibc 2.17
+
+FROM quay.io/pypa/manylinux2014
 
 # Set default build arguments.
 ARG UNAME=jenkins
@@ -6,34 +9,18 @@ ARG UID=1000
 ARG GID=1000
 
 # Set default environment variables.
-ENV JAVA_HOME=/usr/lib/jvm/java-openjdk
+ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
 ENV YUM_OPTIONS="-y --setopt=skip_missing_names_on_install=False"
 
-# CentOS 7 reached EOL - switch to vault archive mirrors
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo && \
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
-
-# Install EPEL and SCL repos
-RUN yum install ${YUM_OPTIONS} epel-release centos-release-scl
-
-# Fix SCL repos to use vault as well
-RUN sed -i 's|^mirrorlist|#mirrorlist|g' /etc/yum.repos.d/CentOS-SCLo-*.repo && \
-    sed -i 's|^#.*baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-SCLo-*.repo
-
-# Install system dependencies
+# manylinux2014 already has devtoolset and many build tools pre-installed
+# Install additional dependencies
 RUN yum install ${YUM_OPTIONS} \
     wget \
     git \
-    cmake3 \
-    rh-maven35 \
     python3 \
     python3-pip \
-    ninja-build \
     patch \
-    clang \
-    devtoolset-7-toolchain \
     nasm \
-    yasm \
     autoconf \
     automake \
     libtool \
@@ -48,22 +35,25 @@ RUN yum install ${YUM_OPTIONS} \
     libmpc-devel \
     gtk-doc \
     gobject-introspection gobject-introspection-devel \
-    glib2.x86_64 glib2-devel.x86_64 \
+    glib2 glib2-devel \
     java-1.8.0-openjdk java-1.8.0-openjdk-devel
 
-# Install meson via pip (EPEL doesn't have it for CentOS 7)
-RUN pip3 install meson
+# Upgrade pip first (old pip in manylinux2014 can't install newer packages)
+# Then install meson, cmake, ninja via pip
+RUN pip3 install --upgrade pip && \
+    pip3 install meson cmake ninja
 
-# Symlink cmake3 to cmake
-RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
+# Install Maven (not available in manylinux repos)
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz | tar -xzf - -C /opt && \
+    ln -s /opt/apache-maven-3.6.3/bin/mvn /usr/local/bin/mvn
+
+# Verify cmake is available (installed via pip)
+RUN cmake --version
 
 # Switch to a non-root user
 RUN groupadd -g $GID -o $UNAME && \
     useradd -l -m -u $UID -g $GID -o -s /bin/bash -d /home/$UNAME $UNAME
 
-# Enable SCL packages on login
-RUN echo 'for scl in /opt/rh/*/enable; do source $scl; done' >> /etc/profile.d/rhscl.sh
-
 USER $UNAME
 
-CMD ["bash", "-l", "-ex", "build.sh", "--with-linux-x86_64", "--without-linux-arm64", "--without-w64", "--without-macos"]
+CMD ["bash", "-l", "-ex", "build.sh", "--with-linux", "--without-w64", "--without-macos"]
