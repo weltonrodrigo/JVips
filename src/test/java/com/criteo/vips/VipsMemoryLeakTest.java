@@ -99,8 +99,9 @@ public class VipsMemoryLeakTest {
 
         // Try to process corrupted images multiple times
         for (int i = 0; i < 10; i++) {
+            VipsImage image = null;
             try {
-                VipsImage image = new VipsImage(corruptedImage, corruptedImage.length);
+                image = new VipsImage(corruptedImage, corruptedImage.length);
                 image.writeJPEGToArray(80, true);
                 Assert.fail("Should have thrown VipsException for corrupted image");
             } catch (VipsException e) {
@@ -108,6 +109,11 @@ public class VipsMemoryLeakTest {
                 errorCount++;
                 // Clean up the cache after each error
                 VipsContext.cacheDropAll();
+            } finally {
+                // Release image if it was created
+                if (image != null) {
+                    image.release();
+                }
             }
         }
 
@@ -165,7 +171,7 @@ public class VipsMemoryLeakTest {
             try (VipsImage image = new VipsImage(testImageBytes, testImageBytes.length)) {
                 // Build a pipeline of operations
                 image.thumbnailImage(512, 512, false);
-                image.colourspace(com.criteo.vips.enums.VipsInterpretation.sRGB);
+                image.colourspace(com.criteo.vips.enums.VipsInterpretation.Srgb);
                 
                 // This should succeed
                 byte[] result = image.writeJPEGToArray(80, true);
