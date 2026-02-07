@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -968,6 +969,127 @@ public class VipsImageTest {
             fail("should throw exception for truncated image if fail-on is set");
         } catch (VipsException e) {
             // expected
+        }
+    }
+
+    // InputStream Tests
+
+    @Theory
+    public void TestCreateImageFromInputStream(@FromDataPoints("filenames") String filename) throws IOException, VipsException {
+        try (InputStream stream = VipsTestUtils.getInputStream(filename);
+             VipsImage img = new VipsImage(stream)) {
+            assertNotNull(img);
+            assertTrue(img.getWidth() > 0);
+            assertTrue(img.getHeight() > 0);
+        }
+    }
+
+    @Theory
+    public void TestCreateImageFromInputStreamWithOptions(@FromDataPoints("filenames") String filename) throws IOException, VipsException {
+        Assume.assumeTrue(filename.endsWith(".jpg")); // shrink option works well with JPEG
+        try (InputStream stream = VipsTestUtils.getInputStream(filename);
+             VipsImage img = new VipsImage(stream, "[shrink=2]")) {
+            assertNotNull(img);
+            assertTrue(img.getWidth() > 0);
+            assertTrue(img.getHeight() > 0);
+        }
+    }
+
+    @Theory
+    public void TestInputStreamProducesSameImageAsByteArray(@FromDataPoints("filenames") String filename) throws IOException, VipsException {
+        byte[] buffer = VipsTestUtils.getByteArray(filename);
+        
+        VipsImage imgFromBytes;
+        VipsImage imgFromStream;
+        
+        // Create from byte array
+        imgFromBytes = new VipsImage(buffer, buffer.length);
+        
+        // Create from InputStream
+        try (InputStream stream = VipsTestUtils.getInputStream(filename)) {
+            imgFromStream = new VipsImage(stream);
+        }
+        
+        // Compare dimensions
+        assertEquals(imgFromBytes.getWidth(), imgFromStream.getWidth());
+        assertEquals(imgFromBytes.getHeight(), imgFromStream.getHeight());
+        assertEquals(imgFromBytes.getBands(), imgFromStream.getBands());
+        
+        imgFromBytes.release();
+        imgFromStream.release();
+    }
+
+    @Theory
+    public void TestInputStreamImageCanBeProcessed(@FromDataPoints("filenames") String filename) throws IOException, VipsException {
+        try (InputStream stream = VipsTestUtils.getInputStream(filename);
+             VipsImage img = new VipsImage(stream)) {
+            // Test that we can perform operations on the image
+            int originalWidth = img.getWidth();
+            int originalHeight = img.getHeight();
+            
+            // Resize to half size using Dimension
+            Dimension halfSize = new Dimension(originalWidth / 2, originalHeight / 2);
+            img.resize(halfSize, false);
+            
+            assertEquals(originalWidth / 2, img.getWidth());
+            assertEquals(originalHeight / 2, img.getHeight());
+            
+            // Write to array
+            byte[] output = img.writeToArray(VipsImageFormat.JPG, false);
+            assertNotNull(output);
+            assertTrue(output.length > 0);
+        }
+    }
+
+    @Test
+    public void TestInputStreamWithAllFormats() throws IOException, VipsException {
+        String[] testFiles = {
+            "in_vips.jpg",
+            "transparent.png",
+            "logo.webp",
+            "cat.gif",
+            "deflate_compression.tiff"
+        };
+        
+        for (String filename : testFiles) {
+            try (InputStream stream = VipsTestUtils.getInputStream(filename);
+                 VipsImage img = new VipsImage(stream)) {
+                assertNotNull("Image should be created from " + filename, img);
+                assertTrue("Width should be positive for " + filename, img.getWidth() > 0);
+                assertTrue("Height should be positive for " + filename, img.getHeight() > 0);
+            }
+        }
+    }
+
+    @Test(expected = VipsException.class)
+    public void TestInputStreamWithInvalidDataShouldThrow() throws IOException, VipsException {
+        // Create a stream with invalid image data
+        java.io.ByteArrayInputStream invalidStream = new java.io.ByteArrayInputStream(
+            "this is not an image".getBytes()
+        );
+        
+        try (VipsImage img = new VipsImage(invalidStream)) {
+            fail("Should have thrown VipsException for invalid image data");
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void TestInputStreamIOExceptionPropagates() throws IOException, VipsException {
+        // Create a stream that will throw IOException on read
+        InputStream failingStream = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                throw new IOException("Simulated I/O error");
+            }
+            
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                throw new IOException("Simulated I/O error");
+            }
+        };
+        
+        try (VipsImage img = new VipsImage(failingStream)) {
+            fail("Should have thrown IOException");
         }
     }
 }

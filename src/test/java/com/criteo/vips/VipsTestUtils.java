@@ -17,7 +17,9 @@
 package com.criteo.vips;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
@@ -36,6 +38,19 @@ public class VipsTestUtils {
         ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
         buffer.put(bytes, 0, bytes.length);
         return buffer;
+    }
+
+    /**
+     * Get an InputStream for a test resource file.
+     * Note: Callers are responsible for closing the returned stream.
+     * Use try-with-resources to ensure proper cleanup.
+     * 
+     * @param filename the name of the resource file
+     * @return an InputStream for the resource
+     * @throws IOException if the file cannot be opened
+     */
+    public static InputStream getInputStream(String filename) throws IOException {
+        return new FileInputStream(new File(getRessourcePath(filename)));
     }
 
     public static byte[] toPrimitives(Byte[] oBytes)
