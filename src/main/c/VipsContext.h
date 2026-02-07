@@ -71,6 +71,30 @@ JNIEXPORT jint JNICALL Java_com_criteo_vips_VipsContext_getMaxCacheMem
 JNIEXPORT void JNICALL Java_com_criteo_vips_VipsContext_shutdown
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_criteo_vips_VipsContext
+ * Method:    threadShutdown
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_criteo_vips_VipsContext_threadShutdown
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_criteo_vips_VipsContext
+ * Method:    cacheDropAll
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_criteo_vips_VipsContext_cacheDropAll
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_criteo_vips_VipsContext
+ * Method:    getCacheSize
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_criteo_vips_VipsContext_getCacheSize
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

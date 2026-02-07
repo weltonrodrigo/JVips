@@ -66,3 +66,21 @@ Java_com_criteo_vips_VipsContext_shutdown(__attribute__((unused)) JNIEnv *env, _
 {
     vips_shutdown();
 }
+
+JNIEXPORT void JNICALL
+Java_com_criteo_vips_VipsContext_threadShutdown(__attribute__((unused)) JNIEnv *env, __attribute__((unused)) jclass obj)
+{
+    vips_thread_shutdown();
+}
+
+JNIEXPORT void JNICALL
+Java_com_criteo_vips_VipsContext_cacheDropAll(__attribute__((unused)) JNIEnv *env, __attribute__((unused)) jclass obj)
+{
+    vips_cache_drop_all();
+}
+
+JNIEXPORT jint JNICALL
+Java_com_criteo_vips_VipsContext_getCacheSize(__attribute__((unused)) JNIEnv *env, __attribute__((unused)) jclass obj)
+{
+    return vips_cache_get_size();
+}
