@@ -26,6 +26,46 @@ Feel free to contribute.
 
 Look at the hello world program in [SimpleExample.java](src/test/java/com/criteo/vips/example/SimpleExample.java). It opens an image file, resize it, and prints its size.
 
+For InputStream usage (including Jackson integration), see [InputStreamExample.java](src/test/java/com/criteo/vips/example/InputStreamExample.java).
+
+## InputStream Support
+
+JVips supports creating images from `InputStream`, which is particularly useful when working with streaming JSON parsers like Jackson to avoid allocating large byte arrays for base64-encoded images:
+
+```java
+// Load image from InputStream
+try (InputStream stream = ...; // from Jackson, HTTP, etc.
+     VipsImage image = new VipsImage(stream)) {
+    image.thumbnailImage(new Dimension(800, 600), true);
+    byte[] thumbnail = image.writeToArray(VipsImageFormat.JPG, false);
+}
+```
+
+### Jackson Integration
+
+When processing JSON with large base64-encoded images, use Jackson's streaming API with JVips to minimize memory allocation:
+
+```java
+ObjectMapper mapper = new ObjectMapper();
+try (JsonParser jp = mapper.getFactory().createParser(jsonInputStream)) {
+    while (jp.nextToken() != null) {
+        if ("imageData".equals(jp.getCurrentName())) {
+            jp.nextToken();
+            // readBinaryValue() returns InputStream - no byte[] allocation!
+            try (InputStream imageStream = jp.readBinaryValue();
+                 VipsImage image = new VipsImage(imageStream)) {
+                // Process image with minimal memory overhead
+                image.resize(0.5, 0.5);
+                byte[] output = image.writeToArray(VipsImageFormat.JPG, false);
+            }
+            break;
+        }
+    }
+}
+```
+
+This approach significantly reduces memory pressure when handling large images (10MB+) in JSON payloads.
+
 # Installation
 
 ## From prebuilt packages

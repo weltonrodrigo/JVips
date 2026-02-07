@@ -19,6 +19,9 @@ package com.criteo.vips;
 import com.criteo.vips.enums.*;
 
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -73,6 +76,50 @@ public class VipsImage extends Vips implements Image {
 
     public VipsImage(String filename) throws VipsException {
         newFromFile(filename);
+    }
+
+    /**
+     * Create a VipsImage from an InputStream.
+     * The stream will be read completely and buffered internally.
+     * This is particularly useful with Jackson's readBinaryValue() to avoid
+     * allocating a byte[] for large base64-encoded images in JSON.
+     *
+     * @param inputStream the input stream containing image data
+     * @throws VipsException if the image cannot be decoded
+     * @throws IOException if reading from the stream fails
+     */
+    public VipsImage(InputStream inputStream) throws VipsException, IOException {
+        this(inputStream, null);
+    }
+
+    /**
+     * Create a VipsImage from an InputStream with options.
+     * The stream will be read completely and buffered internally.
+     * This is particularly useful with Jackson's readBinaryValue() to avoid
+     * allocating a byte[] for large base64-encoded images in JSON.
+     *
+     * @param inputStream the input stream containing image data
+     * @param options loader options string (e.g., "[shrink=2]")
+     * @throws VipsException if the image cannot be decoded
+     * @throws IOException if reading from the stream fails
+     */
+    public VipsImage(InputStream inputStream, String options) throws VipsException, IOException {
+        // Read stream in chunks to avoid huge single allocation
+        // Using 64KB chunks as a reasonable balance between memory and I/O efficiency
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] chunk = new byte[65536]; // 64KB chunks
+        int bytesRead;
+
+        while ((bytesRead = inputStream.read(chunk)) != -1) {
+            buffer.write(chunk, 0, bytesRead);
+        }
+
+        byte[] imageData = buffer.toByteArray();
+        if (options != null) {
+            newFromBuffer(imageData, imageData.length, options);
+        } else {
+            newFromBuffer(imageData, imageData.length);
+        }
     }
 
     private VipsImage() {

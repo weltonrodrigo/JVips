@@ -17,7 +17,9 @@
 package com.criteo.vips;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
@@ -36,6 +38,10 @@ public class VipsTestUtils {
         ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
         buffer.put(bytes, 0, bytes.length);
         return buffer;
+    }
+
+    public static InputStream getInputStream(String filename) throws IOException {
+        return new FileInputStream(new File(getRessourcePath(filename)));
     }
 
     public static byte[] toPrimitives(Byte[] oBytes)
