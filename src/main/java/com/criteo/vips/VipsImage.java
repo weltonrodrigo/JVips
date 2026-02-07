@@ -23,6 +23,35 @@ import java.nio.ByteBuffer;
 
 /**
  * Operation on image is not thread safe.
+ * 
+ * IMPORTANT THREADING NOTES:
+ * - VipsImage objects should not be accessed concurrently from multiple threads
+ * - If using application-managed threads (e.g., thread pools), you MUST call
+ *   VipsContext.threadShutdown() before the thread exits to prevent memory leaks
+ * - In web servers and long-running applications, consider calling
+ *   VipsContext.cacheDropAll() periodically or after errors to free cached operations
+ * - For short-lived processes, these cleanups may not be necessary as the OS
+ *   will reclaim all memory on process exit
+ * 
+ * MEMORY MANAGEMENT:
+ * - Always call release() or use try-with-resources to free VipsImage resources
+ * - After catching VipsException, consider calling VipsContext.cleanupAfterError()
+ *   to clear the operation cache and prevent memory accumulation
+ * 
+ * Example for thread pool usage:
+ * <pre>{@code
+ * executor.submit(() -> {
+ *     try (VipsImage image = new VipsImage(bytes, length)) {
+ *         image.thumbnailImage(width, height, false);
+ *         return image.writeJPEGToArray(quality, strip);
+ *     } catch (VipsException e) {
+ *         VipsContext.cleanupAfterError();
+ *         throw e;
+ *     } finally {
+ *         VipsContext.threadShutdown();
+ *     }
+ * });
+ * }</pre>
  */
 public class VipsImage extends Vips implements Image {
     public static int JPGQuality = 80;

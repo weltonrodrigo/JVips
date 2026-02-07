@@ -26,6 +26,51 @@ Feel free to contribute.
 
 Look at the hello world program in [SimpleExample.java](src/test/java/com/criteo/vips/example/SimpleExample.java). It opens an image file, resize it, and prints its size.
 
+## Memory Management and Threading
+
+⚠️ **Important**: JVips requires explicit cleanup in long-running applications and when using thread pools. See [MEMORY_LEAK_ANALYSIS.md](MEMORY_LEAK_ANALYSIS.md) for detailed information.
+
+### Basic Usage
+
+```java
+// Simple usage with try-with-resources (recommended)
+try (VipsImage image = new VipsImage(imageBytes, imageBytes.length)) {
+    image.thumbnailImage(200, 200, false);
+    byte[] result = image.writeJPEGToArray(85, true);
+    return result;
+} catch (VipsException e) {
+    VipsContext.cleanupAfterError();  // Clean up cache on error
+    throw e;
+}
+```
+
+### Thread Pool Usage
+
+```java
+// In thread pool environments, call threadShutdown() when threads exit
+executor.submit(() -> {
+    try (VipsImage image = new VipsImage(bytes, bytes.length)) {
+        image.thumbnailImage(width, height, false);
+        return image.writeJPEGToArray(quality, strip);
+    } catch (VipsException e) {
+        VipsContext.cleanupAfterError();
+        throw e;
+    } finally {
+        VipsContext.threadShutdown();  // CRITICAL: Clean up thread-local data
+    }
+});
+```
+
+### Long-Running Servers
+
+```java
+// Periodically clean cache to prevent memory accumulation
+if (requestCount % 1000 == 0) {
+    VipsContext.cacheDropAll();
+    System.out.println(VipsContext.getMemoryInfo());
+}
+```
+
 # Installation
 
 ## From prebuilt packages
