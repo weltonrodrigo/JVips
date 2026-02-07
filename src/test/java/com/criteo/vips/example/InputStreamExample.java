@@ -110,7 +110,9 @@ public class InputStreamExample {
                     image.getWidth(), image.getHeight()));
 
             // Process without ever allocating the full byte[] in Java heap
-            image.resize(0.5, 0.5);
+            int newWidth = image.getWidth() / 2;
+            int newHeight = image.getHeight() / 2;
+            image.resize(new Dimension(newWidth, newHeight), false);
             byte[] thumbnail = image.writeToArray(VipsImageFormat.JPG, false);
 
             System.out.println(String.format("Thumbnail size: %d bytes (%.1f%% of original)",

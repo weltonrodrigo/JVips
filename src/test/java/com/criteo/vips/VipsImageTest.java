@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1026,8 +1027,9 @@ public class VipsImageTest {
             int originalWidth = img.getWidth();
             int originalHeight = img.getHeight();
             
-            // Resize to half size
-            img.resize(0.5, 0.5);
+            // Resize to half size using Dimension
+            Dimension halfSize = new Dimension(originalWidth / 2, originalHeight / 2);
+            img.resize(halfSize, false);
             
             assertEquals(originalWidth / 2, img.getWidth());
             assertEquals(originalHeight / 2, img.getHeight());
@@ -1077,6 +1079,11 @@ public class VipsImageTest {
         InputStream failingStream = new InputStream() {
             @Override
             public int read() throws IOException {
+                throw new IOException("Simulated I/O error");
+            }
+            
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
                 throw new IOException("Simulated I/O error");
             }
         };
