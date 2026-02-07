@@ -106,19 +106,45 @@ public class VipsImage extends Vips implements Image {
     public VipsImage(InputStream inputStream, String options) throws VipsException, IOException {
         // Read stream in chunks to avoid huge single allocation
         // Using 64KB chunks as a reasonable balance between memory and I/O efficiency
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        
+        // Try to estimate initial capacity to reduce reallocations
+        int initialCapacity = 8192; // Default 8KB minimum
+        try {
+            int available = inputStream.available();
+            if (available > 0) {
+                // Use available bytes as hint, but cap at reasonable size
+                // to avoid huge allocations if available() is inaccurate
+                initialCapacity = Math.min(available, 10 * 1024 * 1024); // Cap at 10MB
+            }
+        } catch (IOException e) {
+            // Ignore - available() is just a hint
+        }
+        
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(initialCapacity);
         byte[] chunk = new byte[65536]; // 64KB chunks
         int bytesRead;
 
-        while ((bytesRead = inputStream.read(chunk)) != -1) {
-            buffer.write(chunk, 0, bytesRead);
-        }
+        try {
+            while ((bytesRead = inputStream.read(chunk)) != -1) {
+                buffer.write(chunk, 0, bytesRead);
+            }
 
-        byte[] imageData = buffer.toByteArray();
-        if (options != null) {
-            newFromBuffer(imageData, imageData.length, options);
-        } else {
-            newFromBuffer(imageData, imageData.length);
+            byte[] imageData = buffer.toByteArray();
+            if (options != null) {
+                newFromBuffer(imageData, imageData.length, options);
+            } else {
+                newFromBuffer(imageData, imageData.length);
+            }
+        } catch (IOException e) {
+            // Ensure proper cleanup by setting fields to null on failure
+            vipsImageHandler = 0;
+            bufferHandler = 0;
+            throw e;
+        } catch (VipsException e) {
+            // Ensure proper cleanup by setting fields to null on failure
+            vipsImageHandler = 0;
+            bufferHandler = 0;
+            throw e;
         }
     }
 
