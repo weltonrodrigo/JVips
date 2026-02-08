@@ -173,7 +173,7 @@ fi
 for pid in "${PIDS[@]}"; do wait "$pid" || fail "Source sync failed"; done
 PIDS=()
 
-# --- Native builds (parallel) ---
+# --- Linux builds (parallel) ---
 if [[ $BUILD_X86 -eq 1 ]]; then
     log "Building linux-x86_64..."
     docker_build "$DOCKER_CTX_X86" "$DOCKER_IMG_X86" "$REMOTE_DIR_X86" \
@@ -191,19 +191,22 @@ if [[ $NEED_ARM -eq 1 ]]; then
     PIDS+=($!)
 fi
 
+for pid in "${PIDS[@]}"; do wait "$pid" || fail "Linux build failed (pid $pid)"; done
+PIDS=()
+
+# --- macOS build (runs AFTER Linux builds) ---
+# Must run last: Homebrew's vips GIR includes the deprecated VipsForeignJpegSubsample
+# enum that the Linux-built vips removed. The enum generator regenerates all .java
+# files from the GIR, so running macOS first would pollute the source tree with a
+# stale enum that breaks Linux CMake builds (glob picks it up, then enum-generator
+# deletes it mid-build).
 if [[ $BUILD_MACOS -eq 1 ]]; then
     log "Building darwin-aarch64..."
-    (
-        rm -rf "$BASEDIR/build/macOS"
-        export JAVA_HOME="$JAVA8_HOME"
-        export PATH="$JAVA_HOME/bin:$PATH"
-        bash -l -ex "$BASEDIR/build.sh" --with-macos $SKIP_TEST
-    ) &
-    PIDS+=($!)
+    rm -rf "$BASEDIR/build/macOS"
+    export JAVA_HOME="$JAVA8_HOME"
+    export PATH="$JAVA_HOME/bin:$PATH"
+    bash -l -ex "$BASEDIR/build.sh" --with-macos $SKIP_TEST
 fi
-
-for pid in "${PIDS[@]}"; do wait "$pid" || fail "Native build failed (pid $pid)"; done
-PIDS=()
 
 # --- Collect artifacts ---
 log "Collecting build artifacts..."
