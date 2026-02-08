@@ -24,6 +24,9 @@ elseif(${BUILD_TARGET} STREQUAL "linux-x86_64")
 elseif(${BUILD_TARGET} STREQUAL "linux-aarch64")
   set(CONFIGURE_HOST "--host=aarch64-linux-gnu")
   set(TARGET_ARCH "aarch64")
+elseif(${BUILD_TARGET} STREQUAL "linux-aarch64-sve2")
+  set(CONFIGURE_HOST "--host=aarch64-linux-gnu")
+  set(TARGET_ARCH "aarch64")
 elseif(${BUILD_TARGET} STREQUAL "linux")
   # Legacy support - detect from system processor
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
@@ -118,7 +121,7 @@ endif()
 find_library(LIBJPEG jpeg turbojpeg PATHS "${EXT_INSTALL_DIR}/lib" NO_DEFAULT_PATH)
 if(NOT LIBJPEG)
     ExternalProject_Add(libjpeg
-      URL "https://sourceforge.net/projects/libjpeg-turbo/files/${JPG_VERSION}/libjpeg-turbo-${JPG_VERSION}.tar.gz/download"
+      URL "https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/${JPG_VERSION}/libjpeg-turbo-${JPG_VERSION}.tar.gz"
       PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libjpeg-turbo"
       CMAKE_ARGS
       -DCMAKE_INSTALL_PREFIX=${EXT_INSTALL_DIR}
@@ -262,11 +265,13 @@ if (WITH_LIBHEIF)
           PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libaom"
           CMAKE_ARGS
           -DCMAKE_INSTALL_PREFIX=${EXT_INSTALL_DIR}
+          -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
           -DCMAKE_BUILD_TYPE=Release
           -DCMAKE_INSTALL_LIBDIR=lib
           -DBUILD_SHARED_LIBS=1
           -DENABLE_CCACHE=0
           -DENABLE_TESTS=0
+          -DENABLE_TOOLS=0
           -DENABLE_EXAMPLES=0
           -DENABLE_DOCS=0
           )

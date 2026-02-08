@@ -19,6 +19,7 @@ NATIVE_ARCH=$(detect_arch)
 
 BUILD_LINUX_X86_64=0
 BUILD_LINUX_AARCH64=0
+BUILD_LINUX_AARCH64_SVE2=0
 BUILD_WIN64=0
 BUILD_MACOS=0
 DIST=0
@@ -34,6 +35,7 @@ while true; do
     --with-w64 ) BUILD_WIN64=1; shift;;
     --with-linux-x86_64 ) BUILD_LINUX_X86_64=1; shift;;
     --with-linux-aarch64 | --with-linux-arm64 ) BUILD_LINUX_AARCH64=1; shift;;
+    --with-linux-aarch64-sve2 ) BUILD_LINUX_AARCH64_SVE2=1; shift;;
     --with-linux )
         # Auto-detect based on native arch
         if [ "$NATIVE_ARCH" = "aarch64" ]; then
@@ -46,7 +48,8 @@ while true; do
     --without-w64 ) BUILD_WIN64=0; shift;;
     --without-linux-x86_64 ) BUILD_LINUX_X86_64=0; shift;;
     --without-linux-aarch64 | --without-linux-arm64 ) BUILD_LINUX_AARCH64=0; shift;;
-    --without-linux ) BUILD_LINUX_X86_64=0; BUILD_LINUX_AARCH64=0; shift;;
+    --without-linux-aarch64-sve2 ) BUILD_LINUX_AARCH64_SVE2=0; shift;;
+    --without-linux ) BUILD_LINUX_X86_64=0; BUILD_LINUX_AARCH64=0; BUILD_LINUX_AARCH64_SVE2=0; shift;;
     --without-macos ) BUILD_MACOS=0; shift;;
     --skip-test ) RUN_TEST=0; shift;;
     --run-benchmark ) RUN_BENCHMARK=1; shift;;
@@ -185,6 +188,10 @@ if [ ${BUILD_LINUX_AARCH64} -gt 0 ]; then
     build_linux "aarch64" "--host=aarch64-linux-gnu" "Toolchain-linux-aarch64.cmake"
 fi
 
+if [ ${BUILD_LINUX_AARCH64_SVE2} -gt 0 ]; then
+    build_linux "aarch64-sve2" "--host=aarch64-linux-gnu" "Toolchain-linux-aarch64-sve2.cmake"
+fi
+
 ##########################
 ###### Build Win64 #######
 ##########################
@@ -305,12 +312,15 @@ if [ ${DIST} -gt 0 ]; then
     if [ ${BUILD_LINUX_AARCH64} -gt 0 ]; then
        tar -czvf "JVips-linux-aarch64.tar.gz" JVips.jar -C "${BUILDDIR}"/linux-aarch64/inst/ bin lib include share
     fi
+    if [ ${BUILD_LINUX_AARCH64_SVE2} -gt 0 ]; then
+       tar -czvf "JVips-linux-aarch64-sve2.tar.gz" JVips.jar -C "${BUILDDIR}"/linux-aarch64-sve2/inst/ bin lib include share
+    fi
 fi
 
 if [ "${CI}" = "true" ]; then
     # Archive all platform-specific libraries
     LIBS_ARCHIVE=""
-    for PLATFORM_DIR in linux-x86_64 linux-aarch64 darwin-x86_64 darwin-aarch64 windows-x86_64; do
+    for PLATFORM_DIR in linux-x86_64 linux-aarch64 linux-aarch64-sve2 darwin-x86_64 darwin-aarch64 windows-x86_64; do
         if [ -d "${BUILDDIR}/${PLATFORM_DIR}" ]; then
             LIBS_ARCHIVE="${LIBS_ARCHIVE} ${PLATFORM_DIR}"
         fi

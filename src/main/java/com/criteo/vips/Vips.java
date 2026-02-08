@@ -24,6 +24,7 @@ public class Vips {
     private static final String SYSTEM_NAME = System.getProperty("os.name").toLowerCase();
     private static final String SYSTEM_ARCH = System.getProperty("os.arch").toLowerCase();
     private static final String PLATFORM = detectPlatform();
+    private static final boolean HAS_SVE2 = detectSVE2();
 
     /**
      * Detects the current platform as {os}-{arch}.
@@ -51,6 +52,28 @@ public class Vips {
         }
 
         return os + "-" + arch;
+    }
+
+    /**
+     * Detects SVE2 support on Linux aarch64 by reading /proc/cpuinfo.
+     * Returns false on non-Linux or non-aarch64 platforms.
+     */
+    private static boolean detectSVE2() {
+        if (!PLATFORM.equals("linux-aarch64")) {
+            return false;
+        }
+        try (BufferedReader reader = new BufferedReader(new FileReader("/proc/cpuinfo"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("Features") && line.contains("sve2")) {
+                    LOGGER.info("SVE2 support detected");
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            // /proc/cpuinfo not available, assume no SVE2
+        }
+        return false;
     }
 
     private static final String[] LINUX_LIBRARIES = {
@@ -126,17 +149,31 @@ public class Vips {
         String libName = System.mapLibraryName(name);
         File temp;
 
-        // Try platform-specific path first (e.g., linux-x86_64/libJVips.so)
-        String platformPath = PLATFORM + "/" + libName;
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(platformPath);
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        InputStream in = null;
+
+        // Try SVE2-optimized path first on capable hardware
+        if (HAS_SVE2) {
+            String sve2Path = "linux-aarch64-sve2/" + libName;
+            in = cl.getResourceAsStream(sve2Path);
+            if (in != null) {
+                LOGGER.fine("Loading SVE2-optimized " + libName);
+            }
+        }
+
+        // Try platform-specific path (e.g., linux-x86_64/libJVips.so)
+        if (in == null) {
+            String platformPath = PLATFORM + "/" + libName;
+            in = cl.getResourceAsStream(platformPath);
+        }
 
         // Fallback to root path for backward compatibility
         if (in == null) {
-            in = Thread.currentThread().getContextClassLoader().getResourceAsStream(libName);
+            in = cl.getResourceAsStream(libName);
         }
 
         if (in == null) {
-            LOGGER.warning("Could not load lib '" + libName + "' via classloader (tried " + platformPath + " and root)");
+            LOGGER.warning("Could not load lib '" + libName + "' via classloader");
             return;
         }
 
