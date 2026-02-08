@@ -362,6 +362,8 @@ if(NOT VIPS)
         PKG_CONFIG_PATH=${EXT_INSTALL_DIR}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}
         LDFLAGS=-L${EXT_INSTALL_DIR}/lib
         CPPFLAGS=-I${EXT_INSTALL_DIR}/include
+        CFLAGS=${CONFIGURE_CFLAGS}
+        CXXFLAGS=${CONFIGURE_CXXFLAGS}
         meson setup
         --prefix=${EXT_INSTALL_DIR}
         --libdir=lib
