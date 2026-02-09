@@ -10,10 +10,13 @@ SET(CMAKE_CXX_COMPILER g++)
 SET(CMAKE_AR ar)
 SET(CMAKE_RANLIB ranlib)
 
-# SVE2 architecture flags for Azure Cobalt 100 / Neoverse N2
+# Neoverse N1 CPU tuning + SVE2 for Azure Cobalt 100 / Neoverse N2
+# -mcpu=neoverse-n1 adds pipeline scheduling model (N1 is closest to N2 available in GCC 10)
+# +sve2 enables SVE2 instructions supported by Neoverse N2
 # These propagate to CMake-based ExternalProject subbuilds (libhwy, libjpeg-turbo, libaom, etc.)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.5-a+sve2" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8.5-a+sve2" CACHE STRING "" FORCE)
+# and to autotools subbuilds via CONFIGURE_VARS in lib/CMakeLists.txt
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=neoverse-n1+sve2" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=neoverse-n1+sve2" CACHE STRING "" FORCE)
 
 # target environment location
 SET(CMAKE_FIND_ROOT_PATH /usr/ ${CMAKE_SOURCE_DIR}/build/${BUILD_TARGET}/inst)

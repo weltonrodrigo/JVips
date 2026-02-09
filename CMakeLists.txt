@@ -18,10 +18,10 @@ set(CMAKE_C_FLAGS "-std=c99")
 set(CMAKE_CXX_FLAGS "-std=c++14")
 
 # When building for SVE2 (Azure Cobalt 100 / Neoverse N2), add architecture flags
-# Uses -march=armv8.5-a+sve2 which is compatible with GCC 10+
+# Uses -mcpu=neoverse-n1+sve2: N1 scheduling model (closest to N2 in GCC 10) + SVE2 ISA
 if(BUILD_TARGET STREQUAL "linux-aarch64-sve2")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8.5-a+sve2")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8.5-a+sve2")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=neoverse-n1+sve2")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mcpu=neoverse-n1+sve2")
 endif()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -g3")
