@@ -957,6 +957,46 @@ public class VipsImageTest {
     }
 
     @Test
+    public void TestShouldThumbnailFromBufferWithShrinkOnLoad() throws IOException, VipsException {
+        byte[] buffer = VipsTestUtils.getByteArray("in_vips.jpg");
+        int targetWidth = 200;
+        int targetHeight = 200;
+        try (VipsImage img = VipsImage.thumbnail(buffer, buffer.length, targetWidth, targetHeight, VipsSize.Both, VipsInteresting.None)) {
+            assertNotNull(img);
+            assertEquals(targetWidth, img.getWidth());
+            // Aspect ratio preserved: 1920x1080 -> 200x113
+            assertTrue(img.getHeight() <= targetHeight);
+            assertTrue(img.getHeight() > 0);
+        }
+    }
+
+    @Test
+    public void TestShouldThumbnailImageWithCrop() throws IOException, VipsException {
+        byte[] buffer = VipsTestUtils.getByteArray("in_vips.jpg");
+        int targetWidth = 200;
+        int targetHeight = 200;
+        try (VipsImage img = new VipsImage(buffer, buffer.length)) {
+            img.thumbnailImage(targetWidth, targetHeight, VipsSize.Both, VipsInteresting.Centre);
+            // With centre crop, both dimensions should match the target
+            assertEquals(targetWidth, img.getWidth());
+            assertEquals(targetHeight, img.getHeight());
+        }
+    }
+
+    @Test
+    public void TestShouldThumbnailImageWithSizeDown() throws IOException, VipsException {
+        byte[] buffer = VipsTestUtils.getByteArray("in_vips.jpg");
+        try (VipsImage img = new VipsImage(buffer, buffer.length)) {
+            int originalWidth = img.getWidth();
+            int originalHeight = img.getHeight();
+            // Request a thumbnail larger than the original — VipsSize.Down should prevent upscaling
+            img.thumbnailImage(originalWidth * 2, originalHeight * 2, VipsSize.Down, VipsInteresting.None);
+            assertEquals(originalWidth, img.getWidth());
+            assertEquals(originalHeight, img.getHeight());
+        }
+    }
+
+    @Test
     public void TestShouldThrowErrorOnOperationIfTruncatedImage() throws IOException, VipsException {
         byte[] bufferArray = VipsTestUtils.getByteArray("truncated_image_missing_20_bytes.jpg");
 

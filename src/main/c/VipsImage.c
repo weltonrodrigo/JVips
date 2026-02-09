@@ -214,13 +214,12 @@ Java_com_criteo_vips_VipsImage_colourspaceNative__II(JNIEnv *env, jobject obj, i
 }
 
 JNIEXPORT void JNICALL
-Java_com_criteo_vips_VipsImage_thumbnailImageNative(JNIEnv *env, jobject obj, jint width, jint height, jboolean scale)
+Java_com_criteo_vips_VipsImage_thumbnailImageNative(JNIEnv *env, jobject obj, jint width, jint height, jint size, jint crop)
 {
     VipsImage *im = (VipsImage *) (*env)->GetLongField(env, obj, handle_fid);
     VipsImage *out = NULL;
-    VipsSize vipsSize = scale ? VIPS_SIZE_FORCE : VIPS_SIZE_BOTH;
 
-    if (vips_thumbnail_image(im, &out, width, "height", height, "size", vipsSize, NULL))
+    if (vips_thumbnail_image(im, &out, width, "height", height, "size", size, "crop", crop, NULL))
     {
         throwVipsException(env, "Unable to make thumbnail image");
         return;
@@ -230,17 +229,39 @@ Java_com_criteo_vips_VipsImage_thumbnailImageNative(JNIEnv *env, jobject obj, ji
 }
 
 JNIEXPORT jobject JNICALL
-Java_com_criteo_vips_VipsImage_thumbnailNative(JNIEnv *env, jclass cls, jstring filename, jint width, jint height, jboolean scale)
+Java_com_criteo_vips_VipsImage_thumbnailNative(JNIEnv *env, jclass cls, jstring filename, jint width, jint height, jint size, jint crop)
 {
     VipsImage *out = NULL;
     const char *name = (*env)->GetStringUTFChars(env, filename, NULL);
-    VipsSize vipsSize = scale ? VIPS_SIZE_FORCE : VIPS_SIZE_BOTH;
 
-    if (vips_thumbnail(name, &out, width, "height", height, "size", vipsSize, NULL))
+    if (vips_thumbnail(name, &out, width, "height", height, "size", size, "crop", crop, NULL))
     {
         throwVipsException(env, "Unable to make thumbnail");
     }
     (*env)->ReleaseStringUTFChars(env, filename, name);
+    return (*env)->NewObject(env, cls, ctor_mid, (jlong) out);
+}
+
+JNIEXPORT jobject JNICALL
+Java_com_criteo_vips_VipsImage_thumbnailBufferNative(JNIEnv *env, jclass cls, jbyteArray buffer, jint length, jint width, jint height, jint size, jint crop)
+{
+    VipsImage *out = NULL;
+    void *buf = NULL;
+    size_t len = length * sizeof(jbyte);
+
+    if ((buf = vips_tracked_malloc(len)) == NULL)
+    {
+        throwVipsException(env, "Unable to allocate memory");
+        return NULL;
+    }
+    (*env)->GetByteArrayRegion(env, buffer, 0, len, buf);
+    if (vips_thumbnail_buffer(buf, len, &out, width, "height", height, "size", size, "crop", crop, NULL))
+    {
+        vips_tracked_free(buf);
+        throwVipsException(env, "Unable to make thumbnail from buffer");
+        return NULL;
+    }
+    vips_tracked_free(buf);
     return (*env)->NewObject(env, cls, ctor_mid, (jlong) out);
 }
 

@@ -149,15 +149,43 @@ public class VipsImage extends Vips implements Image {
     private native void histFindNdimNative(int bins) throws VipsException;
 
     public void thumbnailImage(Dimension dimension, boolean scale) throws VipsException {
-        thumbnailImageNative(dimension.width, dimension.height, scale);
+        VipsSize size = scale ? VipsSize.Force : VipsSize.Both;
+        thumbnailImageNative(dimension.width, dimension.height, size.getValue(), VipsInteresting.None.getValue());
     }
 
     public void thumbnailImage(int width, int height, boolean scale) throws VipsException {
-        thumbnailImageNative(width, height, scale);
+        VipsSize size = scale ? VipsSize.Force : VipsSize.Both;
+        thumbnailImageNative(width, height, size.getValue(), VipsInteresting.None.getValue());
+    }
+
+    /**
+     * Make a thumbnail of this VipsImage with new target dimension
+     *
+     * @param width  Target width
+     * @param height Target height
+     * @param size   Sizing behaviour (e.g. VipsSize.Down to prevent upscaling)
+     * @param crop   Cropping behaviour (e.g. VipsInteresting.Centre for centre crop)
+     * @throws VipsException if error
+     */
+    public void thumbnailImage(int width, int height, VipsSize size, VipsInteresting crop) throws VipsException {
+        thumbnailImageNative(width, height, size.getValue(), crop.getValue());
+    }
+
+    /**
+     * Make a thumbnail of this VipsImage with new target dimension
+     *
+     * @param dimension Target dimension
+     * @param size      Sizing behaviour (e.g. VipsSize.Down to prevent upscaling)
+     * @param crop      Cropping behaviour (e.g. VipsInteresting.Centre for centre crop)
+     * @throws VipsException if error
+     */
+    public void thumbnailImage(Dimension dimension, VipsSize size, VipsInteresting crop) throws VipsException {
+        thumbnailImageNative(dimension.width, dimension.height, size.getValue(), crop.getValue());
     }
 
     public static VipsImage thumbnail(String filename, Dimension dimension, boolean scale) throws VipsException {
-        return thumbnailNative(filename, dimension.width, dimension.height, scale);
+        VipsSize size = scale ? VipsSize.Force : VipsSize.Both;
+        return thumbnailNative(filename, dimension.width, dimension.height, size.getValue(), VipsInteresting.None.getValue());
     }
 
     /**
@@ -170,7 +198,41 @@ public class VipsImage extends Vips implements Image {
      * @throws VipsException if error
      */
     public static VipsImage thumbnail(String filename, int width, int height, boolean scale) throws VipsException {
-        return thumbnailNative(filename, width, height, scale);
+        VipsSize size = scale ? VipsSize.Force : VipsSize.Both;
+        return thumbnailNative(filename, width, height, size.getValue(), VipsInteresting.None.getValue());
+    }
+
+    /**
+     * Make a thumbnail from a file with new target dimension
+     *
+     * @param filename name of the file to load
+     * @param width    Target width
+     * @param height   Target height
+     * @param size     Sizing behaviour (e.g. VipsSize.Down to prevent upscaling)
+     * @param crop     Cropping behaviour (e.g. VipsInteresting.Centre for centre crop)
+     * @throws VipsException if error
+     */
+    public static VipsImage thumbnail(String filename, int width, int height, VipsSize size, VipsInteresting crop) throws VipsException {
+        return thumbnailNative(filename, width, height, size.getValue(), crop.getValue());
+    }
+
+    /**
+     * Make a thumbnail from an in-memory buffer with shrink-on-load support.
+     * This uses codec-level downsampling (e.g. JPEG 1/2, 1/4, 1/8 factors) for
+     * significantly faster and lower-memory thumbnailing compared to loading
+     * the full image first.
+     *
+     * @param buffer byte array containing the encoded image
+     * @param length length of the buffer
+     * @param width  Target width
+     * @param height Target height
+     * @param size   Sizing behaviour (e.g. VipsSize.Down to prevent upscaling)
+     * @param crop   Cropping behaviour (e.g. VipsInteresting.Centre for centre crop)
+     * @return a new VipsImage with the thumbnail
+     * @throws VipsException if error
+     */
+    public static VipsImage thumbnail(byte[] buffer, int length, int width, int height, VipsSize size, VipsInteresting crop) throws VipsException {
+        return thumbnailBufferNative(buffer, length, width, height, size.getValue(), crop.getValue());
     }
 
     /**
@@ -178,7 +240,8 @@ public class VipsImage extends Vips implements Image {
      */
     @Deprecated
     public void resize(Dimension dimension, boolean scale) throws VipsException {
-        thumbnailImageNative(dimension.width, dimension.height, scale);
+        VipsSize size = scale ? VipsSize.Force : VipsSize.Both;
+        thumbnailImageNative(dimension.width, dimension.height, size.getValue(), VipsInteresting.None.getValue());
     }
 
     /**
@@ -186,12 +249,15 @@ public class VipsImage extends Vips implements Image {
      */
     @Deprecated
     public void resize(int width, int height, boolean scale) throws VipsException {
-        thumbnailImageNative(width, height, scale);
+        VipsSize size = scale ? VipsSize.Force : VipsSize.Both;
+        thumbnailImageNative(width, height, size.getValue(), VipsInteresting.None.getValue());
     }
 
-    private native void thumbnailImageNative(int width, int height, boolean scale) throws VipsException;
+    private native void thumbnailImageNative(int width, int height, int size, int crop) throws VipsException;
 
-    private static native VipsImage thumbnailNative(String filename, int width, int height, boolean scale) throws VipsException;
+    private static native VipsImage thumbnailNative(String filename, int width, int height, int size, int crop) throws VipsException;
+
+    private static native VipsImage thumbnailBufferNative(byte[] buffer, int length, int width, int height, int size, int crop) throws VipsException;
 
     public void resize(double hscale, double vscale, VipsKernel kernel) throws VipsException {
         resizeNative(hscale, vscale, kernel.getValue());

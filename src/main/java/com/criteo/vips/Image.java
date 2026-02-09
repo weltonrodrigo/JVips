@@ -151,6 +151,17 @@ public interface Image extends AutoCloseable {
     /**
      * Make a thumbnail of this VipsImage with new target dimension
      *
+     * @param width  Target width
+     * @param height Target height
+     * @param size   Sizing behaviour (e.g. VipsSize.Down to prevent upscaling)
+     * @param crop   Cropping behaviour (e.g. VipsInteresting.Centre for centre crop)
+     * @throws VipsException if error
+     */
+    void thumbnailImage(int width, int height, VipsSize size, VipsInteresting crop) throws VipsException;
+
+    /**
+     * Make a thumbnail of this VipsImage with new target dimension
+     *
      * @param dimension Target dimension
      * @param scale     If scale is enabled, force to resize ignoring aspect ratio
      * @throws VipsException if error
